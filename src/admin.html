@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Daily Price Entry · Global Coffee Board</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>" />
+</head>
+<body>
+  <div class="bg-ambient"></div>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="index.html"><span class="bean-mark"></span> Global<b>Coffee</b>Board</a>
+      <button class="nav-toggle" aria-label="Menu">☰</button>
+      <div class="nav-links">
+        <a href="index.html">Dashboard</a>
+        <a href="knowledge.html">Knowledge</a>
+        <a href="index.html#calculator">Calculator</a>
+        <a href="index.html#audience">For You</a>
+        <a href="admin.html" class="active">Admin</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero" style="padding:60px 0 20px">
+    <div class="wrap">
+      <div class="eyebrow">Admin panel</div>
+      <h1 style="font-size:clamp(2rem,4.5vw,3rem)">Daily price entry</h1>
+      <p class="lead">Enter today's figures — especially the Coffee Board of India grades. These become the dashboard's source of truth and override or fill in the live feed. Data is stored in your browser (localStorage).</p>
+    </div>
+  </header>
+
+  <main>
+    <section class="section" style="padding-top:10px">
+      <div class="wrap" style="max-width:900px">
+
+        <div id="admin-notice" class="notice info" style="display:none"></div>
+
+        <div class="notice info">
+          <b>Tip:</b> open the <a style="color:var(--gold-2)" href="https://coffeeboard.gov.in/Market_Info.aspx" target="_blank" rel="noopener">Coffee Board of India Daily Market Report</a>, copy today's grade prices into the table below, and click Save. Leave futures/FX blank to let the live feed provide them.
+        </div>
+
+        <!-- Benchmarks -->
+        <div class="glass" style="padding:26px;margin-bottom:22px">
+          <h3 style="font-family:var(--font-head);margin-bottom:16px">Benchmarks &amp; FX <span style="font-size:.8rem;color:var(--text-dim);font-weight:400">(optional — leave blank for live feed)</span></h3>
+          <div class="admin-grid">
+            <div class="field"><label>London Robusta (USD / tonne)</label><input id="robusta" type="number" placeholder="e.g. 4180" /></div>
+            <div class="field"><label>Robusta prev. close (USD/t)</label><input id="robustaPrev" type="number" placeholder="e.g. 4120" /></div>
+            <div class="field"><label>NY Arabica (US ¢ / lb)</label><input id="arabica" type="number" placeholder="e.g. 315" /></div>
+            <div class="field"><label>Arabica prev. close (¢/lb)</label><input id="arabicaPrev" type="number" placeholder="e.g. 322" /></div>
+            <div class="field"><label>USD / INR</label><input id="usdinr" type="number" step="0.01" placeholder="e.g. 86.40" /></div>
+          </div>
+        </div>
+
+        <!-- CBI grades -->
+        <div class="glass" style="padding:26px;margin-bottom:22px">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px">
+            <h3 style="font-family:var(--font-head)">Coffee Board of India — grade prices</h3>
+            <button class="btn" id="add-grade" style="padding:8px 16px">+ Add grade</button>
+          </div>
+          <div class="table-wrap">
+            <table class="data" style="min-width:480px">
+              <thead><tr><th>Grade</th><th>₹ / 50 kg</th><th></th></tr></thead>
+              <tbody id="grade-rows"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+          <button class="btn btn-primary" id="save-btn">💾 Save &amp; publish</button>
+          <button class="btn" id="export-btn">⬇ Export JSON</button>
+          <label class="btn" style="cursor:pointer">⬆ Import JSON<input id="import-file" type="file" accept="application/json" style="display:none" /></label>
+          <button class="btn btn-ghost" id="clear-btn" style="margin-left:auto;border-color:rgba(229,106,95,.4);color:var(--bad)">Clear manual data</button>
+        </div>
+
+        <p style="color:var(--text-dim);font-size:.85rem;margin-top:18px">
+          Note: this is a client-side panel for a static site. Data lives in this browser only. Use <b>Export JSON</b> to back up or move entries to another device, and <b>Import JSON</b> to restore them. For multi-user publishing, wire these values into a small Netlify Function or commit the JSON to your repo.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <div class="fine">© <span data-year></span> GlobalCoffeeBoard.com · Admin panel</div>
+    </div>
+  </footer>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/main.js"></script>
+  <script src="assets/js/admin.js"></script>
+</body>
+</html>

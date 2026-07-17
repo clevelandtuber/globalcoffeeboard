@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<!-- Built by build.py from src/index.html — do not edit directly; edit src/ + assets/ then run: python3 build.py -->
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Global Coffee Board — Live Coffee Prices & Knowledge</title>
+  <meta name="description" content="Live global coffee prices (London Robusta, NY Arabica), USD/INR, and the Coffee Board of India daily market report — plus an earnings calculator and a coffee knowledge encyclopedia. Built for Indian farmers, café owners, exporters and enthusiasts." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+/* ============================================================
+   Global Coffee Board — Design System
+   Dark espresso theme · glassmorphism · 3D-ready
+   ============================================================ */
+
+:root {
+  /* Espresso palette */
+  --bg-0: #0e0a05;
+  --bg-1: #17100a;
+  --bg-2: #201710;
+  --surface: rgba(38, 27, 17, 0.55);
+  --surface-solid: #241a10;
+  --border: rgba(200, 162, 122, 0.16);
+  --border-strong: rgba(200, 162, 122, 0.34);
+
+  /* Crema / accent */
+  --crema: #c8a27a;
+  --latte: #e6cba6;
+  --gold: #e0a458;
+  --gold-2: #f0c069;
+  --caramel: #b5762f;
+
+  /* State */
+  --good: #4fbf8b;
+  --good-dim: rgba(79, 191, 139, 0.14);
+  --bad: #e56a5f;
+  --bad-dim: rgba(229, 106, 95, 0.14);
+  --warn: #e8b24a;
+
+  /* Text */
+  --text: #f4ecdf;
+  --text-muted: #b6a68f;
+  --text-dim: #8a7b64;
+
+  /* Shape */
+  --radius: 18px;
+  --radius-sm: 12px;
+  --radius-lg: 26px;
+  --shadow: 0 18px 50px -12px rgba(0, 0, 0, 0.7);
+  --shadow-gold: 0 10px 40px -8px rgba(224, 164, 88, 0.35);
+
+  --font-head: "Playfair Display", Georgia, serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --maxw: 1180px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  color: var(--text);
+  background: var(--bg-0);
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Ambient background gradient (used on inner pages + as WebGL fallback) */
+.bg-ambient {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(1200px 700px at 80% -10%, rgba(181, 118, 47, 0.20), transparent 60%),
+    radial-gradient(900px 600px at 0% 100%, rgba(224, 164, 88, 0.10), transparent 55%),
+    linear-gradient(160deg, var(--bg-1), var(--bg-0) 70%);
+}
+
+/* Three.js canvas host */
+#bean-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  display: block;
+  pointer-events: none;
+}
+
+/* CSS fallback beans (when WebGL/Three.js is unavailable) */
+#css-beans { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.css-bean {
+  position: absolute; top: 110%; border-radius: 50% / 42%;
+  background: radial-gradient(circle at 34% 30%, #8a5a2e, #5a3a1c 62%, #3a2410 100%);
+  box-shadow: inset -3px -4px 8px rgba(0,0,0,.5), inset 3px 4px 8px rgba(240,192,105,.15);
+  opacity: .5; animation-name: bean-float; animation-timing-function: linear; animation-iteration-count: infinite;
+}
+.css-bean::after {
+  content: ""; position: absolute; left: 50%; top: 8%; bottom: 8%; width: 12%;
+  transform: translateX(-50%); border-radius: 50%;
+  background: linear-gradient(180deg, rgba(14,10,5,.1), rgba(14,10,5,.65));
+}
+@keyframes bean-float {
+  0% { transform: translateY(0) rotate(0deg); }
+  100% { transform: translateY(-135vh) rotate(320deg); }
+}
+@media (prefers-reduced-motion: reduce) { .css-bean { animation: none; opacity: .28; top: auto; } }
+
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+
+.wrap { width: 100%; max-width: var(--maxw); margin: 0 auto; padding: 0 22px; }
+
+h1, h2, h3, .head { font-family: var(--font-head); font-weight: 700; letter-spacing: 0.2px; }
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--gold-2);
+  font-family: var(--font-body);
+}
+
+/* ---------- Navbar ---------- */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  background: linear-gradient(180deg, rgba(14, 10, 5, 0.86), rgba(14, 10, 5, 0.45));
+  border-bottom: 1px solid var(--border);
+}
+.nav-inner {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 14px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.brand { display: flex; align-items: center; gap: 12px; font-family: var(--font-head); font-size: 1.24rem; font-weight: 700; }
+.brand .bean-mark {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, var(--gold-2), var(--caramel) 70%);
+  position: relative; flex: none;
+  box-shadow: var(--shadow-gold);
+}
+.brand .bean-mark::after {
+  content: ""; position: absolute; inset: 6px 15px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, rgba(14,10,5,.0), rgba(14,10,5,.55));
+  transform: rotate(12deg);
+}
+.brand b { color: var(--gold-2); }
+.nav-links { display: flex; align-items: center; gap: 6px; }
+.nav-links a {
+  padding: 8px 14px; border-radius: 999px; font-size: 0.92rem; font-weight: 500;
+  color: var(--text-muted); transition: 0.18s;
+}
+.nav-links a:hover { color: var(--text); background: rgba(224,164,88,0.10); }
+.nav-links a.active { color: var(--bg-0); background: linear-gradient(120deg, var(--gold-2), var(--gold)); font-weight: 600; }
+.nav-toggle { display: none; background: none; border: 1px solid var(--border-strong); color: var(--text); border-radius: 10px; padding: 8px 10px; cursor: pointer; font-size: 1.1rem; }
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 12px 22px; border-radius: 999px; border: 1px solid var(--border-strong);
+  background: rgba(224,164,88,0.08); color: var(--text); font-weight: 600; font-size: 0.95rem;
+  cursor: pointer; transition: 0.2s; font-family: var(--font-body);
+}
+.btn:hover { transform: translateY(-2px); border-color: var(--gold); box-shadow: var(--shadow-gold); }
+.btn-primary { background: linear-gradient(120deg, var(--gold-2), var(--gold)); color: #241405; border: none; }
+.btn-ghost { background: transparent; }
+
+/* ---------- Cards / glass ---------- */
+.glass {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--shadow);
+}
+
+/* ---------- Hero ---------- */
+.hero { position: relative; padding: 92px 0 70px; text-align: center; }
+.hero h1 { font-size: clamp(2.4rem, 6vw, 4.4rem); line-height: 1.05; margin: 16px 0 14px; }
+.hero h1 .grad {
+  background: linear-gradient(110deg, var(--gold-2), var(--latte), var(--gold));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.hero p.lead { font-size: clamp(1rem, 2.2vw, 1.22rem); color: var(--text-muted); max-width: 640px; margin: 0 auto 28px; }
+.hero-cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.scroll-hint { margin-top: 46px; color: var(--text-dim); font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; }
+
+/* ---------- Section ---------- */
+.section { padding: 64px 0; position: relative; }
+.section-head { text-align: center; margin-bottom: 40px; }
+.section-head h2 { font-size: clamp(1.8rem, 4vw, 2.7rem); margin-top: 8px; }
+.section-head p { color: var(--text-muted); max-width: 620px; margin: 10px auto 0; }
+
+/* ---------- Price grid ---------- */
+.price-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+.price-card { padding: 24px; position: relative; overflow: hidden; transition: transform .25s, box-shadow .25s; }
+.price-card::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--gold-2), transparent);
+}
+.price-card:hover { transform: translateY(-4px); box-shadow: var(--shadow), var(--shadow-gold); }
+.price-card .label { display: flex; align-items: center; gap: 10px; color: var(--text-muted); font-size: 0.86rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+.price-card .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.price-card .primary { font-size: 2.3rem; font-weight: 800; margin: 12px 0 2px; font-family: var(--font-head); }
+.price-card .secondary { color: var(--latte); font-size: 1.02rem; font-weight: 600; }
+.price-card .meta { margin-top: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; color: var(--text-dim); }
+.chg { font-weight: 700; padding: 3px 9px; border-radius: 999px; font-size: 0.82rem; }
+.chg.up { color: var(--good); background: var(--good-dim); }
+.chg.down { color: var(--bad); background: var(--bad-dim); }
+.chg.flat { color: var(--text-muted); background: rgba(255,255,255,0.05); }
+
+/* ---------- Verdict banner ---------- */
+.verdict {
+  margin-top: 26px; padding: 26px 28px; border-radius: var(--radius-lg);
+  display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+  border: 1px solid var(--border-strong);
+}
+.verdict.good { background: linear-gradient(120deg, rgba(79,191,139,0.18), rgba(79,191,139,0.04)); border-color: rgba(79,191,139,0.4); }
+.verdict.bad { background: linear-gradient(120deg, rgba(229,106,95,0.18), rgba(229,106,95,0.04)); border-color: rgba(229,106,95,0.4); }
+.verdict.hold { background: linear-gradient(120deg, rgba(232,178,74,0.16), rgba(232,178,74,0.04)); border-color: rgba(232,178,74,0.4); }
+.verdict .emoji { font-size: 3rem; line-height: 1; }
+.verdict .v-title { font-family: var(--font-head); font-size: 1.7rem; }
+.verdict .v-sub { color: var(--text-muted); font-size: 0.96rem; }
+
+/* ---------- Table ---------- */
+.table-wrap { overflow-x: auto; border-radius: var(--radius); }
+table.data { width: 100%; border-collapse: collapse; min-width: 560px; }
+table.data th, table.data td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.94rem; }
+table.data th { color: var(--gold-2); text-transform: uppercase; letter-spacing: 1px; font-size: 0.74rem; font-weight: 700; }
+table.data td.num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+table.data tr:hover td { background: rgba(224,164,88,0.05); }
+
+/* ---------- Calculator ---------- */
+.calc { display: grid; grid-template-columns: 1.1fr 1fr; gap: 26px; }
+.calc .field { margin-bottom: 16px; }
+.calc label { display: block; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; }
+input, select {
+  width: 100%; padding: 12px 14px; border-radius: var(--radius-sm);
+  background: rgba(0,0,0,0.28); border: 1px solid var(--border);
+  color: var(--text); font-size: 1rem; font-family: var(--font-body); transition: 0.18s;
+}
+input:focus, select:focus { outline: none; border-color: var(--gold); background: rgba(0,0,0,0.4); }
+.chip-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip { padding: 9px 15px; border-radius: 999px; border: 1px solid var(--border); background: rgba(0,0,0,0.2); cursor: pointer; font-size: 0.88rem; font-weight: 600; transition: 0.16s; }
+.chip.active { background: linear-gradient(120deg, var(--gold-2), var(--gold)); color: #241405; border-color: transparent; }
+.calc-result { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 30px; }
+.calc-result .earn { font-family: var(--font-head); font-size: clamp(2.2rem, 6vw, 3.4rem); font-weight: 800; color: var(--gold-2); }
+.calc-result .earn-sub { color: var(--text-muted); }
+
+/* ---------- Knowledge cards (3D tilt) ---------- */
+.k-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 22px; }
+.tilt { transform-style: preserve-3d; transition: transform 0.12s ease-out; will-change: transform; }
+.k-card { padding: 26px; height: 100%; }
+.k-card .k-ico { font-size: 2.2rem; margin-bottom: 12px; transform: translateZ(40px); }
+.k-card h3 { font-size: 1.32rem; margin-bottom: 8px; transform: translateZ(28px); }
+.k-card p { color: var(--text-muted); font-size: 0.95rem; transform: translateZ(16px); }
+.k-card .k-tag { display: inline-block; margin-top: 14px; font-size: 0.78rem; color: var(--gold-2); font-weight: 600; }
+
+/* ---------- Audience strip ---------- */
+.aud-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px,1fr)); gap: 18px; }
+.aud { padding: 24px; text-align: center; transition: 0.22s; }
+.aud:hover { transform: translateY(-4px); border-color: var(--border-strong); }
+.aud .a-ico { font-size: 2.4rem; }
+.aud h4 { font-family: var(--font-head); font-size: 1.2rem; margin: 10px 0 6px; }
+.aud p { color: var(--text-muted); font-size: 0.9rem; }
+
+/* ---------- Article / knowledge body ---------- */
+.article { max-width: 820px; margin: 0 auto; }
+.article h2 { font-size: 1.9rem; margin: 40px 0 14px; color: var(--latte); }
+.article h3 { font-size: 1.3rem; margin: 26px 0 10px; }
+.article p { color: #e2d6c4; margin-bottom: 14px; }
+.article ul { margin: 0 0 16px 22px; color: #e2d6c4; }
+.article li { margin-bottom: 7px; }
+.callout { border-left: 3px solid var(--gold); background: rgba(224,164,88,0.07); padding: 16px 20px; border-radius: 0 12px 12px 0; margin: 20px 0; color: var(--latte); }
+
+/* ---------- Bars / mini chart ---------- */
+.bars { display: flex; align-items: flex-end; gap: 8px; height: 130px; padding-top: 8px; }
+.bar { flex: 1; background: linear-gradient(180deg, var(--gold-2), var(--caramel)); border-radius: 6px 6px 0 0; position: relative; min-height: 4px; transition: height .6s cubic-bezier(.2,.8,.2,1); }
+.bar span { position: absolute; top: -20px; left: 0; right: 0; text-align: center; font-size: 0.72rem; color: var(--text-muted); }
+.bar small { position: absolute; bottom: -22px; left: 0; right: 0; text-align: center; font-size: 0.7rem; color: var(--text-dim); }
+
+/* ---------- Badges / status ---------- */
+.live-dot { display: inline-flex; align-items: center; gap: 7px; font-size: 0.8rem; color: var(--text-muted); }
+.live-dot i { width: 8px; height: 8px; border-radius: 50%; background: var(--good); box-shadow: 0 0 0 0 rgba(79,191,139,0.6); animation: pulse 2s infinite; }
+@keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(79,191,139,.5);} 70%{box-shadow:0 0 0 9px rgba(79,191,139,0);} 100%{box-shadow:0 0 0 0 rgba(79,191,139,0);} }
+.src-badge { font-size: 0.74rem; color: var(--text-dim); }
+.src-badge.manual { color: var(--warn); }
+
+/* ---------- Footer ---------- */
+.footer { border-top: 1px solid var(--border); margin-top: 40px; padding: 40px 0 30px; background: rgba(14,10,5,0.6); }
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 30px; }
+.footer h5 { font-family: var(--font-head); color: var(--latte); margin-bottom: 12px; font-size: 1.05rem; }
+.footer a { display: block; color: var(--text-muted); font-size: 0.9rem; padding: 4px 0; }
+.footer a:hover { color: var(--gold-2); }
+.footer .fine { text-align: center; color: var(--text-dim); font-size: 0.8rem; margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border); }
+
+/* ---------- Admin ---------- */
+.admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 16px; }
+.notice { padding: 14px 18px; border-radius: 12px; font-size: 0.9rem; margin: 16px 0; }
+.notice.ok { background: var(--good-dim); border: 1px solid rgba(79,191,139,0.4); color: var(--good); }
+.notice.info { background: rgba(224,164,88,0.08); border: 1px solid var(--border-strong); color: var(--latte); }
+
+/* ---------- Reveal on scroll ---------- */
+.reveal { opacity: 0; transform: translateY(26px); transition: opacity .7s, transform .7s; }
+.reveal.in { opacity: 1; transform: none; }
+
+/* Refresh spin */
+@keyframes spin { to { transform: rotate(360deg); } }
+#refresh-btn.spin { pointer-events: none; opacity: 0.75; animation: spin 0.9s linear infinite; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 860px) {
+  .calc { grid-template-columns: 1fr; }
+  .cbi-layout { grid-template-columns: 1fr !important; }
+  .footer-grid { grid-template-columns: 1fr; gap: 20px; }
+  .nav-links {
+    position: fixed; inset: 62px 0 auto 0; flex-direction: column; align-items: stretch;
+    background: rgba(14,10,5,0.97); border-bottom: 1px solid var(--border); padding: 14px 18px;
+    transform: translateY(-140%); transition: transform .3s; gap: 4px;
+  }
+  .nav-links.open { transform: none; }
+  .nav-links a { padding: 12px 14px; }
+  .nav-toggle { display: block; }
+}
+
+</style>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>" />
+</head>
+<body>
+  <div class="bg-ambient"></div>
+  <canvas id="bean-canvas"></canvas>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="index.html"><span class="bean-mark"></span> Global<b>Coffee</b>Board</a>
+      <button class="nav-toggle" aria-label="Menu">☰</button>
+      <div class="nav-links">
+        <a href="index.html" class="active">Dashboard</a>
+        <a href="knowledge.html">Knowledge</a>
+        <a href="index.html#calculator">Calculator</a>
+        <a href="index.html#audience">For You</a>
+        <a href="admin.html">Admin</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="wrap">
+      <div class="eyebrow">Global coffee intelligence · from bean to benchmark</div>
+      <h1>The world's coffee prices,<br /><span class="grad">clear enough for a farmer.</span></h1>
+      <p class="lead">Live London Robusta &amp; New York Arabica benchmarks, USD/INR, and the Coffee Board of India daily report — converted to ₹/kg with a plain-language "sell or hold" verdict.</p>
+      <div class="hero-cta">
+        <a href="#dashboard" class="btn btn-primary">View live prices</a>
+        <a href="knowledge.html" class="btn btn-ghost">Explore knowledge →</a>
+      </div>
+      <div class="scroll-hint">scroll to the dashboard ↓</div>
+    </div>
+  </header>
+
+  <!-- DASHBOARD -->
+  <main>
+    <section class="section" id="dashboard">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <div class="eyebrow">Live Price Dashboard</div>
+          <h2>Today's coffee market</h2>
+          <p>Benchmarks refresh automatically. When the live feed is unavailable, the latest admin-entered figures are shown.</p>
+          <div style="display:flex;gap:14px;justify-content:center;align-items:center;margin-top:14px;flex-wrap:wrap">
+            <span class="live-dot"><i></i> Updated <b id="updated-at" style="color:var(--text)">—</b></span>
+            <button class="btn" id="refresh-btn" style="padding:8px 16px">↻ Refresh</button>
+          </div>
+        </div>
+
+        <div class="price-grid reveal">
+          <div class="glass price-card" id="card-robusta"></div>
+          <div class="glass price-card" id="card-arabica"></div>
+          <div class="glass price-card" id="card-fx"></div>
+          <div class="glass price-card" id="card-local"></div>
+        </div>
+
+        <!-- VERDICT -->
+        <div class="verdict hold reveal" id="verdict"></div>
+
+        <!-- DIFFERENTIAL -->
+        <div style="margin-top:22px" class="reveal" id="differential"></div>
+      </div>
+    </section>
+
+    <!-- CBI TABLE + CHART -->
+    <section class="section" id="cbi">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <div class="eyebrow">Coffee Board of India</div>
+          <h2>Daily Coffee Market Report</h2>
+          <p>Indian farm-gate reference prices by grade. Source: <a style="color:var(--gold-2)" href="https://coffeeboard.gov.in/Market_Info.aspx" target="_blank" rel="noopener">coffeeboard.gov.in</a> — maintained daily via the admin panel.</p>
+        </div>
+        <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:24px;align-items:start" class="cbi-layout">
+          <div class="glass reveal" style="padding:8px 8px 4px">
+            <div class="table-wrap">
+              <table class="data">
+                <thead><tr><th>Grade</th><th style="text-align:right">₹ / 50 kg</th><th style="text-align:right">₹ / kg</th></tr></thead>
+                <tbody id="cbi-body"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="glass reveal" style="padding:24px 24px 40px">
+            <div class="eyebrow">Price by grade (₹/50kg)</div>
+            <div class="bars" id="cbi-chart" style="margin-top:26px"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CALCULATOR -->
+    <section class="section" id="calculator">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <div class="eyebrow">Earnings Calculator</div>
+          <h2>What is your harvest worth today?</h2>
+          <p>Pick a bean, choose a quantity, and see the value at today's prices.</p>
+        </div>
+        <div class="glass reveal" style="padding:30px">
+          <div class="calc">
+            <div>
+              <div class="field">
+                <label>Bean type</label>
+                <div class="chip-row">
+                  <div class="chip active" data-bean="robusta">Robusta</div>
+                  <div class="chip" data-bean="arabica">Arabica</div>
+                </div>
+              </div>
+              <div class="field">
+                <label>Quantity</label>
+                <div class="chip-row">
+                  <div class="chip" data-qty="1">1 kg</div>
+                  <div class="chip active" data-qty="60">60 kg (bag)</div>
+                  <div class="chip" data-qty="100">100 kg</div>
+                  <div class="chip" data-qty="1000">1 tonne</div>
+                  <div class="chip" data-qty="custom">Custom</div>
+                </div>
+                <input id="qty-custom" type="number" inputmode="numeric" placeholder="Enter kg" style="display:none;margin-top:10px" />
+              </div>
+              <p style="color:var(--text-dim);font-size:.85rem">Robusta uses the Coffee Board local average where available; Arabica uses the NY benchmark converted to ₹/kg.</p>
+            </div>
+            <div class="glass calc-result" id="calc-out">
+              <div class="eyebrow">Estimated value</div>
+              <div class="earn" data-earn>—</div>
+              <div class="earn-sub" data-earn-sub>—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AUDIENCE -->
+    <section class="section" id="audience">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <div class="eyebrow">Built for everyone in coffee</div>
+          <h2>Whoever you are, start here</h2>
+        </div>
+        <div class="aud-grid reveal">
+          <a class="glass aud" href="knowledge.html#farmers"><div class="a-ico">🌾</div><h4>Farmers</h4><p>Daily prices in ₹/kg, sell-or-hold guidance and an earnings calculator.</p></a>
+          <a class="glass aud" href="knowledge.html#enthusiasts"><div class="a-ico">☕</div><h4>Enthusiasts</h4><p>Origins, varieties, processing and brewing — the whole bean story.</p></a>
+          <a class="glass aud" href="knowledge.html#entrepreneurs"><div class="a-ico">💼</div><h4>Café owners</h4><p>Costing, sourcing and market trends to price your menu with confidence.</p></a>
+          <a class="glass aud" href="knowledge.html#exporters"><div class="a-ico">🚢</div><h4>Exporters</h4><p>Benchmarks, differentials and FX to time shipments and contracts.</p></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- KNOWLEDGE PREVIEW -->
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <div class="eyebrow">Coffee Encyclopedia</div>
+          <h2>Learn the craft, from cherry to cup</h2>
+          <p>A growing knowledge base for the global coffee community.</p>
+        </div>
+        <div class="k-grid reveal">
+          <a href="knowledge.html#varieties" class="glass k-card tilt"><div class="k-ico">🫘</div><h3>Arabica vs Robusta</h3><p>Flavour, caffeine, altitude and why the price gap exists.</p><span class="k-tag">Read →</span></a>
+          <a href="knowledge.html#processing" class="glass k-card tilt"><div class="k-ico">💧</div><h3>Processing methods</h3><p>Washed, natural and honey — and how each shapes the cup.</p><span class="k-tag">Read →</span></a>
+          <a href="knowledge.html#india" class="glass k-card tilt"><div class="k-ico">🇮🇳</div><h3>Indian coffee regions</h3><p>Karnataka, Kerala, Tamil Nadu and the monsooned Malabar story.</p><span class="k-tag">Read →</span></a>
+        </div>
+        <div style="text-align:center;margin-top:30px" class="reveal">
+          <a href="knowledge.html" class="btn btn-primary">Open the encyclopedia</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footer-grid">
+        <div>
+          <div class="brand" style="margin-bottom:10px"><span class="bean-mark"></span> Global<b>Coffee</b>Board</div>
+          <p style="color:var(--text-muted);font-size:.92rem;max-width:340px">Global coffee knowledge and a daily price dashboard for the whole coffee community — with a special focus on Indian growers.</p>
+        </div>
+        <div>
+          <h5>Explore</h5>
+          <a href="index.html#dashboard">Live Dashboard</a>
+          <a href="index.html#calculator">Earnings Calculator</a>
+          <a href="knowledge.html">Knowledge Base</a>
+          <a href="admin.html">Admin Panel</a>
+        </div>
+        <div>
+          <h5>Data sources</h5>
+          <a href="https://finance.yahoo.com/quote/RC=F" target="_blank" rel="noopener">London Robusta (RC=F)</a>
+          <a href="https://finance.yahoo.com/quote/KC=F" target="_blank" rel="noopener">NY Arabica (KC=F)</a>
+          <a href="https://coffeeboard.gov.in/Market_Info.aspx" target="_blank" rel="noopener">Coffee Board of India</a>
+        </div>
+      </div>
+      <div class="fine">
+        © <span data-year></span> GlobalCoffeeBoard.com · Prices are indicative and for information only — not financial advice.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+/* ============================================================
+   Global Coffee Board — shared config + data layer
+   ============================================================ */
+
+window.GCB = window.GCB || {};
+
+GCB.config = {
+  // Yahoo Finance symbols
+  symbols: {
+    robusta: "RC=F", // ICE London Robusta  (USD / tonne)
+    arabica: "KC=F", // ICE NY Arabica      (US cents / lb)
+  },
+  // Free, keyless, CORS-friendly FX endpoint
+  fxUrl: "https://open.er-api.com/v6/latest/USD",
+  // Yahoo chart endpoint (wrapped in a CORS proxy for browser use)
+  yahooBase: "https://query1.finance.yahoo.com/v8/finance/chart/",
+  corsProxies: [
+    "https://api.allorigins.win/raw?url=",
+    "https://corsproxy.io/?url=",
+  ],
+  refreshMs: 5 * 60 * 1000, // auto-refresh every 5 min
+  cbiSource: "https://coffeeboard.gov.in/Market_Info.aspx",
+};
+
+/* ---- Conversion helpers ---- */
+GCB.LB_PER_TONNE = 2204.6226;
+GCB.KG_PER_TONNE = 1000;
+
+GCB.conv = {
+  // Robusta USD/tonne -> INR/kg
+  robustaToInrKg(usdPerTonne, usdinr) {
+    return (usdPerTonne * usdinr) / GCB.KG_PER_TONNE;
+  },
+  // Arabica US cents/lb -> INR/kg
+  arabicaToInrKg(centsPerLb, usdinr) {
+    const usdPerLb = centsPerLb / 100;
+    const usdPerKg = usdPerLb * (GCB.LB_PER_TONNE / GCB.KG_PER_TONNE); // per kg
+    return usdPerKg * usdinr;
+  },
+  // Arabica cents/lb -> USD/tonne (for reference display)
+  arabicaCentsToUsdTonne(centsPerLb) {
+    return (centsPerLb / 100) * GCB.LB_PER_TONNE;
+  },
+};
+
+/* ---- Formatting ---- */
+GCB.fmt = {
+  inr(n, d = 0) {
+    if (n == null || isNaN(n)) return "—";
+    return "₹" + Number(n).toLocaleString("en-IN", { minimumFractionDigits: d, maximumFractionDigits: d });
+  },
+  usd(n, d = 0) {
+    if (n == null || isNaN(n)) return "—";
+    return "$" + Number(n).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+  },
+  num(n, d = 2) {
+    if (n == null || isNaN(n)) return "—";
+    return Number(n).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+  },
+  pct(n) {
+    if (n == null || isNaN(n)) return "—";
+    const s = n > 0 ? "+" : "";
+    return s + n.toFixed(2) + "%";
+  },
+  when(ts) {
+    if (!ts) return "—";
+    const d = new Date(ts);
+    return d.toLocaleString("en-IN", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
+  },
+};
+
+/* ---- localStorage keys ---- */
+GCB.KEYS = {
+  manual: "gcb_manual_prices_v1",   // admin-entered override snapshot
+  history: "gcb_price_history_v1",  // array of daily local-price points
+  cache: "gcb_live_cache_v1",       // last successful live fetch
+};
+
+GCB.store = {
+  get(key, fallback) {
+    try { const v = JSON.parse(localStorage.getItem(key)); return v == null ? fallback : v; }
+    catch { return fallback; }
+  },
+  set(key, val) {
+    try { localStorage.setItem(key, JSON.stringify(val)); return true; } catch { return false; }
+  },
+};
+
+/* ---- Sensible seed values (used only if no live + no manual data) ----
+   These are illustrative fallbacks so the dashboard is never empty.
+   Real numbers come from the live feed or the admin panel. */
+GCB.SEED = {
+  robustaUsdTonne: 4180,
+  arabicaCentsLb: 315,
+  usdinr: 86.4,
+  robustaPrevTonne: 4120,
+  arabicaPrevCentsLb: 322,
+  // Coffee Board of India — Daily Coffee Market Report (INR / 50 kg bag typical grades)
+  cbi: [
+    { grade: "Arabica Parchment (AB)", inr50kg: 24500 },
+    { grade: "Arabica Cherry (AB)",    inr50kg: 14800 },
+    { grade: "Robusta Parchment (AB)", inr50kg: 17200 },
+    { grade: "Robusta Cherry (AB)",    inr50kg: 9400  },
+  ],
+  updated: null,
+};
+
+</script>
+  <script>
+/* ============================================================
+   Global Coffee Board — shared UI behaviours
+   Mobile nav · scroll reveal · 3D tilt cards · footer year
+   ============================================================ */
+(function () {
+  // Mobile nav
+  const toggle = document.querySelector(".nav-toggle");
+  const links = document.querySelector(".nav-links");
+  if (toggle && links) {
+    toggle.addEventListener("click", () => links.classList.toggle("open"));
+    links.querySelectorAll("a").forEach((a) =>
+      a.addEventListener("click", () => links.classList.remove("open"))
+    );
+  }
+
+  // Scroll reveal
+  const io = new IntersectionObserver(
+    (entries) => entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }),
+    { threshold: 0.12 }
+  );
+  document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+
+  // 3D tilt cards
+  const supportsHover = window.matchMedia("(hover: hover)").matches;
+  if (supportsHover) {
+    document.querySelectorAll(".tilt").forEach((card) => {
+      card.addEventListener("pointermove", (e) => {
+        const r = card.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width - 0.5;
+        const py = (e.clientY - r.top) / r.height - 0.5;
+        card.style.transform = `perspective(800px) rotateY(${px * 12}deg) rotateX(${-py * 12}deg) translateY(-4px)`;
+      });
+      card.addEventListener("pointerleave", () => {
+        card.style.transform = "perspective(800px) rotateY(0) rotateX(0)";
+      });
+    });
+  }
+
+  // Footer year
+  document.querySelectorAll("[data-year]").forEach((el) => (el.textContent = new Date().getFullYear()));
+})();
+
+</script>
+  <script>
+/* ============================================================
+   Global Coffee Board — Price Dashboard engine
+   Data priority:  live feed  ->  admin manual  ->  seed
+   ============================================================ */
+(function () {
+  const C = GCB.config, F = GCB.fmt, conv = GCB.conv, store = GCB.store, K = GCB.KEYS;
+
+  const state = {
+    robustaUsdTonne: null, robustaPrevTonne: null,
+    arabicaCentsLb: null, arabicaPrevCentsLb: null,
+    usdinr: null,
+    cbi: [],
+    source: {},        // per-field: "live" | "manual" | "seed"
+    updated: null,
+  };
+
+  /* ---------- fetching ---------- */
+  async function fetchFx() {
+    const r = await fetch(C.fxUrl, { cache: "no-store" });
+    if (!r.ok) throw new Error("fx http " + r.status);
+    const j = await r.json();
+    const inr = j?.rates?.INR;
+    if (!inr) throw new Error("no INR in fx");
+    return inr;
+  }
+
+  async function fetchYahoo(symbol) {
+    const target = C.yahooBase + encodeURIComponent(symbol) + "?interval=1d&range=5d";
+    let lastErr;
+    for (const proxy of C.corsProxies) {
+      try {
+        const url = proxy + encodeURIComponent(target);
+        const r = await fetch(url, { cache: "no-store" });
+        if (!r.ok) throw new Error("http " + r.status);
+        const j = await r.json();
+        const res = j?.chart?.result?.[0];
+        const meta = res?.meta;
+        const closes = (res?.indicators?.quote?.[0]?.close || []).filter((x) => x != null);
+        const price = meta?.regularMarketPrice ?? closes[closes.length - 1];
+        const prev = meta?.chartPreviousClose ?? meta?.previousClose ?? closes[closes.length - 2] ?? price;
+        if (price == null) throw new Error("no price");
+        return { price, prev };
+      } catch (e) { lastErr = e; }
+    }
+    throw lastErr || new Error("all proxies failed");
+  }
+
+  /* ---------- assemble ---------- */
+  async function load() {
+    const manual = store.get(K.manual, null);
+    const seed = GCB.SEED;
+
+    // start from seed
+    Object.assign(state, {
+      robustaUsdTonne: seed.robustaUsdTonne, robustaPrevTonne: seed.robustaPrevTonne,
+      arabicaCentsLb: seed.arabicaCentsLb, arabicaPrevCentsLb: seed.arabicaPrevCentsLb,
+      usdinr: seed.usdinr, cbi: seed.cbi.slice(),
+    });
+    state.source = { robusta: "seed", arabica: "seed", fx: "seed", cbi: "seed" };
+    state.updated = seed.updated;
+
+    // overlay admin manual data (source of truth for CBI + optional overrides)
+    if (manual) {
+      if (manual.usdinr) { state.usdinr = manual.usdinr; state.source.fx = "manual"; }
+      if (manual.robustaUsdTonne) { state.robustaUsdTonne = manual.robustaUsdTonne; state.source.robusta = "manual"; }
+      if (manual.arabicaCentsLb) { state.arabicaCentsLb = manual.arabicaCentsLb; state.source.arabica = "manual"; }
+      if (manual.robustaPrevTonne) state.robustaPrevTonne = manual.robustaPrevTonne;
+      if (manual.arabicaPrevCentsLb) state.arabicaPrevCentsLb = manual.arabicaPrevCentsLb;
+      if (Array.isArray(manual.cbi) && manual.cbi.length) { state.cbi = manual.cbi; state.source.cbi = "manual"; }
+      if (manual.updated) state.updated = manual.updated;
+    }
+
+    render(); // paint immediately with best-known data
+
+    // try live overlays (non-blocking, best-effort)
+    const jobs = [
+      fetchFx().then((inr) => { state.usdinr = inr; state.source.fx = "live"; }).catch(() => {}),
+      fetchYahoo(C.symbols.robusta).then((d) => { state.robustaUsdTonne = d.price; state.robustaPrevTonne = d.prev; state.source.robusta = "live"; }).catch(() => {}),
+      fetchYahoo(C.symbols.arabica).then((d) => { state.arabicaCentsLb = d.price; state.arabicaPrevCentsLb = d.prev; state.source.arabica = "live"; }).catch(() => {}),
+    ];
+    await Promise.allSettled(jobs);
+    if (state.source.fx === "live" || state.source.robusta === "live" || state.source.arabica === "live") {
+      state.updated = Date.now();
+      store.set(K.cache, { ...state });
+    }
+    render();
+  }
+
+  /* ---------- derived ---------- */
+  function pctChange(now, prev) {
+    if (!prev || !now) return 0;
+    return ((now - prev) / prev) * 100;
+  }
+
+  // Average local Robusta price in INR/kg from CBI table (Robusta rows), fallback to overall avg
+  function localRobustaInrKg() {
+    const rows = state.cbi.filter((r) => /robusta/i.test(r.grade));
+    const src = rows.length ? rows : state.cbi;
+    if (!src.length) return null;
+    const avg50 = src.reduce((s, r) => s + (r.inr50kg || 0), 0) / src.length;
+    return avg50 / 50; // INR per kg
+  }
+
+  /* ---------- render ---------- */
+  function srcBadge(key) {
+    const s = state.source[key];
+    if (s === "live") return `<span class="src-badge">● live feed</span>`;
+    if (s === "manual") return `<span class="src-badge manual">✎ manual entry</span>`;
+    return `<span class="src-badge">◦ sample</span>`;
+  }
+
+  function chgTag(pct) {
+    const cls = pct > 0.05 ? "up" : pct < -0.05 ? "down" : "flat";
+    const arrow = pct > 0.05 ? "▲" : pct < -0.05 ? "▼" : "—";
+    return `<span class="chg ${cls}">${arrow} ${F.pct(pct)}</span>`;
+  }
+
+  function render() {
+    const { usdinr, robustaUsdTonne, robustaPrevTonne, arabicaCentsLb, arabicaPrevCentsLb } = state;
+
+    const robInr = conv.robustaToInrKg(robustaUsdTonne, usdinr);
+    const araInr = conv.arabicaToInrKg(arabicaCentsLb, usdinr);
+    const robPct = pctChange(robustaUsdTonne, robustaPrevTonne);
+    const araPct = pctChange(arabicaCentsLb, arabicaPrevCentsLb);
+
+    setHTML("card-robusta", `
+      <div class="label"><span class="dot" style="background:#b5762f"></span> London Robusta · RC=F</div>
+      <div class="primary">${F.usd(robustaUsdTonne)}<span style="font-size:1rem;color:var(--text-dim)"> /t</span></div>
+      <div class="secondary">≈ ${F.inr(robInr, 2)} / kg</div>
+      <div class="meta">${chgTag(robPct)} ${srcBadge("robusta")}</div>`);
+
+    setHTML("card-arabica", `
+      <div class="label"><span class="dot" style="background:#e0a458"></span> NY Arabica · KC=F</div>
+      <div class="primary">${F.num(arabicaCentsLb, 2)}<span style="font-size:1rem;color:var(--text-dim)"> ¢/lb</span></div>
+      <div class="secondary">≈ ${F.inr(araInr, 2)} / kg</div>
+      <div class="meta">${chgTag(araPct)} ${srcBadge("arabica")}</div>`);
+
+    setHTML("card-fx", `
+      <div class="label"><span class="dot" style="background:#4fbf8b"></span> USD / INR</div>
+      <div class="primary">₹${F.num(usdinr, 2)}</div>
+      <div class="secondary">1 US Dollar</div>
+      <div class="meta"><span></span> ${srcBadge("fx")}</div>`);
+
+    const localRob = localRobustaInrKg();
+    setHTML("card-local", `
+      <div class="label"><span class="dot" style="background:var(--latte)"></span> India Robusta (avg)</div>
+      <div class="primary">${F.inr(localRob, 2)}<span style="font-size:1rem;color:var(--text-dim)"> /kg</span></div>
+      <div class="secondary">Coffee Board grades</div>
+      <div class="meta"><span></span> ${srcBadge("cbi")}</div>`);
+
+    renderCbi();
+    renderDifferential(robInr, localRob);
+    renderVerdict(robPct, araPct, robInr, localRob);
+    renderChart();
+    refreshCalc();
+
+    const upd = document.getElementById("updated-at");
+    if (upd) upd.textContent = state.updated ? F.when(state.updated) : "sample data";
+  }
+
+  function renderCbi() {
+    const body = document.getElementById("cbi-body");
+    if (!body) return;
+    body.innerHTML = state.cbi.map((r) => {
+      const perKg = (r.inr50kg || 0) / 50;
+      return `<tr><td>${r.grade}</td><td class="num">${F.inr(r.inr50kg)}</td><td class="num">${F.inr(perKg, 2)}</td></tr>`;
+    }).join("");
+  }
+
+  function renderDifferential(robInr, localRob) {
+    const el = document.getElementById("differential");
+    if (!el) return;
+    if (localRob == null) { el.innerHTML = ""; return; }
+    const diff = localRob - robInr;
+    const pct = (diff / robInr) * 100;
+    const positive = diff >= 0;
+    el.innerHTML = `
+      <div class="glass" style="padding:22px 24px">
+        <div class="eyebrow">Indian Market Differential</div>
+        <div style="display:flex;align-items:baseline;gap:12px;margin-top:8px;flex-wrap:wrap">
+          <div style="font-family:var(--font-head);font-size:2rem;font-weight:800;color:${positive ? 'var(--good)' : 'var(--bad)'}">
+            ${positive ? "+" : ""}${F.inr(diff, 2)}/kg
+          </div>
+          <div style="color:var(--text-muted)">(${F.pct(pct)} vs London-parity)</div>
+        </div>
+        <p style="color:var(--text-muted);margin-top:8px;font-size:.92rem">
+          Local Coffee Board price is <b style="color:var(--text)">${positive ? "above" : "below"}</b> the London Robusta price converted to ₹/kg
+          (${F.inr(robInr, 2)}/kg). ${positive
+            ? "A positive differential means Indian buyers are paying a premium over the world benchmark."
+            : "A negative differential means local prices trail the world benchmark — often exporting looks more attractive."}
+        </p>
+      </div>`;
+  }
+
+  function renderVerdict(robPct, araPct, robInr, localRob) {
+    const el = document.getElementById("verdict");
+    if (!el) return;
+
+    // Signal scoring
+    let score = 0;
+    const reasons = [];
+    if (robPct > 0.3) { score++; reasons.push(`Robusta futures up ${F.pct(robPct)}`); }
+    else if (robPct < -0.3) { score--; reasons.push(`Robusta futures down ${F.pct(robPct)}`); }
+    if (araPct > 0.3) { score++; reasons.push(`Arabica firm ${F.pct(araPct)}`); }
+    else if (araPct < -0.3) { score--; reasons.push(`Arabica soft ${F.pct(araPct)}`); }
+
+    if (localRob != null && robInr) {
+      const diffPct = ((localRob - robInr) / robInr) * 100;
+      if (diffPct > 3) { score++; reasons.push("local premium over world parity"); }
+      else if (diffPct < -3) { score--; reasons.push("local discount to world parity"); }
+    }
+
+    // trend vs stored history
+    const hist = store.get(K.history, []);
+    if (hist.length >= 2 && localRob != null) {
+      const older = hist[hist.length - 2]?.localRob;
+      if (older && localRob > older * 1.005) { score++; reasons.push("local prices trending up"); }
+      else if (older && localRob < older * 0.995) { score--; reasons.push("local prices trending down"); }
+    }
+
+    let cls, emoji, title, sub;
+    if (score >= 2) { cls = "good"; emoji = "🌱"; title = "Good day to sell"; sub = "Multiple signals favour selling today."; }
+    else if (score <= -2) { cls = "bad"; emoji = "⏳"; title = "Consider holding"; sub = "Signals are weak — you may get a better price later."; }
+    else { cls = "hold"; emoji = "⚖️"; title = "Neutral / your call"; sub = "Mixed signals. Weigh your cash needs and storage."; }
+
+    el.className = "verdict " + cls;
+    el.innerHTML = `
+      <div class="emoji">${emoji}</div>
+      <div style="flex:1;min-width:220px">
+        <div class="v-title">${title}</div>
+        <div class="v-sub">${sub}</div>
+        ${reasons.length ? `<div style="margin-top:8px;font-size:.85rem;color:var(--text-dim)">Signals: ${reasons.join(" · ")}</div>` : ""}
+      </div>`;
+  }
+
+  function renderChart() {
+    const el = document.getElementById("cbi-chart");
+    if (!el) return;
+    const rows = state.cbi.slice(0, 6);
+    if (!rows.length) { el.innerHTML = ""; return; }
+    const max = Math.max(...rows.map((r) => r.inr50kg || 0)) || 1;
+    el.innerHTML = rows.map((r) => {
+      const h = Math.max(6, ((r.inr50kg || 0) / max) * 100);
+      const short = r.grade.replace(/\((.*?)\)/, "").replace(/Parchment/i, "Parch.").replace(/Robusta/i, "Rob").replace(/Arabica/i, "Ara").trim();
+      return `<div class="bar" style="height:${h}%"><span>${(r.inr50kg / 1000).toFixed(1)}k</span><small>${short}</small></div>`;
+    }).join("");
+  }
+
+  /* ---------- earnings calculator ---------- */
+  const calc = { qtyKg: 60, bean: "robusta" };
+
+  function currentInrKg() {
+    if (calc.bean === "arabica") return conv.arabicaToInrKg(state.arabicaCentsLb, state.usdinr);
+    // robusta: prefer local Coffee Board average if present
+    const local = localRobustaInrKg();
+    return local != null ? local : conv.robustaToInrKg(state.robustaUsdTonne, state.usdinr);
+  }
+
+  function refreshCalc() {
+    const out = document.getElementById("calc-out");
+    if (!out) return;
+    const rate = currentInrKg();
+    const total = rate * calc.qtyKg;
+    out.querySelector("[data-earn]").textContent = F.inr(total, 0);
+    out.querySelector("[data-earn-sub]").textContent =
+      `${calc.qtyKg.toLocaleString("en-IN")} kg of ${calc.bean === "arabica" ? "Arabica" : "Robusta"} @ ${F.inr(rate, 2)}/kg`;
+  }
+
+  function wireCalc() {
+    document.querySelectorAll("[data-qty]").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        document.querySelectorAll("[data-qty]").forEach((c) => c.classList.remove("active"));
+        chip.classList.add("active");
+        const custom = document.getElementById("qty-custom");
+        if (chip.dataset.qty === "custom") { if (custom) { custom.style.display = "block"; custom.focus(); calc.qtyKg = Number(custom.value) || 0; } }
+        else { if (custom) custom.style.display = "none"; calc.qtyKg = Number(chip.dataset.qty); }
+        refreshCalc();
+      });
+    });
+    const custom = document.getElementById("qty-custom");
+    if (custom) custom.addEventListener("input", () => { calc.qtyKg = Number(custom.value) || 0; refreshCalc(); });
+    document.querySelectorAll("[data-bean]").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        document.querySelectorAll("[data-bean]").forEach((c) => c.classList.remove("active"));
+        chip.classList.add("active");
+        calc.bean = chip.dataset.bean;
+        refreshCalc();
+      });
+    });
+  }
+
+  function setHTML(id, html) { const el = document.getElementById(id); if (el) el.innerHTML = html; }
+
+  /* ---------- boot ---------- */
+  document.addEventListener("DOMContentLoaded", () => {
+    wireCalc();
+    load();
+    const btn = document.getElementById("refresh-btn");
+    if (btn) btn.addEventListener("click", () => { btn.classList.add("spin"); load().finally(() => btn.classList.remove("spin")); });
+    setInterval(load, C.refreshMs);
+  });
+})();
+
+</script>
+  <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+  <script>
+/* ============================================================
+   Global Coffee Board — 3D floating coffee beans
+   Classic script (no ES module) so it works over file://, the
+   IDE preview pane, and http alike. Uses the global THREE from
+   the CDN UMD build. Falls back to CSS beans if THREE is absent
+   (offline / CDN blocked) so the hero never looks bland.
+   ============================================================ */
+(function () {
+  var canvas = document.getElementById("bean-canvas");
+  if (!canvas) return;
+
+  function cssFallback() {
+    // Lightweight DOM beans so the background always has life.
+    if (document.getElementById("css-beans")) return;
+    var layer = document.createElement("div");
+    layer.id = "css-beans";
+    layer.setAttribute("aria-hidden", "true");
+    var n = window.innerWidth < 720 ? 10 : 20;
+    var html = "";
+    for (var i = 0; i < n; i++) {
+      var size = 26 + Math.random() * 70;
+      var left = Math.random() * 100;
+      var delay = -Math.random() * 18;
+      var dur = 16 + Math.random() * 16;
+      var rot = Math.random() * 360;
+      html +=
+        '<span class="css-bean" style="width:' + size + "px;height:" + size * 1.35 +
+        "px;left:" + left + "%;animation-delay:" + delay + "s;animation-duration:" + dur +
+        "s;transform:rotate(" + rot + 'deg)"></span>';
+    }
+    layer.innerHTML = html;
+    document.body.appendChild(layer);
+  }
+
+  if (!window.THREE || !window.WebGLRenderingContext) { cssFallback(); return; }
+  try { initScene(canvas); } catch (e) { console.warn("3D scene disabled:", e); cssFallback(); }
+
+  function makeBeanGeometry() {
+    var geo = new THREE.SphereGeometry(1, 40, 28);
+    var pos = geo.attributes.position;
+    var v = new THREE.Vector3();
+    for (var i = 0; i < pos.count; i++) {
+      v.fromBufferAttribute(pos, i);
+      v.x *= 1.0; v.y *= 0.62; v.z *= 1.42;
+      var crease = Math.exp(-(v.x * v.x) * 9) * 0.32;
+      v.y -= Math.sign(v.y || 1) * crease * Math.min(1, Math.abs(v.y) * 3 + 0.15);
+      pos.setXYZ(i, v.x, v.y, v.z);
+    }
+    geo.computeVertexNormals();
+    return geo;
+  }
+
+  function initScene(canvas) {
+    var scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x0e0a05, 0.055);
+
+    var camera = new THREE.PerspectiveCamera(52, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(0, 0, 16);
+
+    var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    scene.add(new THREE.AmbientLight(0x4a3418, 0.9));
+    var key = new THREE.DirectionalLight(0xffd9a0, 2.4); key.position.set(6, 8, 10); scene.add(key);
+    var rim = new THREE.DirectionalLight(0xe0a458, 1.1); rim.position.set(-8, -4, -6); scene.add(rim);
+    var glow = new THREE.PointLight(0xf0c069, 1.6, 40); glow.position.set(0, 2, 8); scene.add(glow);
+
+    var geo = makeBeanGeometry();
+    var mat = new THREE.MeshStandardMaterial({ color: 0x6b4423, roughness: 0.52, metalness: 0.15, emissive: 0x2a1a0a, emissiveIntensity: 0.4 });
+
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var isMobile = window.innerWidth < 720;
+    var COUNT = isMobile ? 34 : 90;
+
+    var beans = [];
+    var group = new THREE.Group();
+    for (var i = 0; i < COUNT; i++) {
+      var m = new THREE.Mesh(geo, mat);
+      var r = 3 + Math.random() * 14;
+      var a = Math.random() * Math.PI * 2;
+      m.position.set(Math.cos(a) * r * 0.9, (Math.random() - 0.5) * 20, (Math.random() - 0.5) * 18 - 2);
+      m.rotation.set(Math.random() * 6, Math.random() * 6, Math.random() * 6);
+      var s = 0.4 + Math.random() * 0.9;
+      m.scale.setScalar(s);
+      beans.push({
+        mesh: m,
+        spin: new THREE.Vector3((Math.random() - .5) * .006, (Math.random() - .5) * .006, (Math.random() - .5) * .004),
+        float: 0.2 + Math.random() * 0.5,
+        phase: Math.random() * Math.PI * 2,
+        baseY: m.position.y,
+      });
+      group.add(m);
+    }
+    scene.add(group);
+
+    var target = { x: 0, y: 0 };
+    window.addEventListener("pointermove", function (e) {
+      target.x = (e.clientX / window.innerWidth - 0.5);
+      target.y = (e.clientY / window.innerHeight - 0.5);
+    });
+
+    var scrollY = 0;
+    window.addEventListener("scroll", function () { scrollY = window.scrollY || 0; }, { passive: true });
+
+    window.addEventListener("resize", function () {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    var t = 0;
+    function animate() {
+      requestAnimationFrame(animate);
+      t += 0.01;
+      if (!reduce) {
+        for (var i = 0; i < beans.length; i++) {
+          var b = beans[i];
+          b.mesh.rotation.x += b.spin.x;
+          b.mesh.rotation.y += b.spin.y;
+          b.mesh.rotation.z += b.spin.z;
+          b.mesh.position.y = b.baseY + Math.sin(t + b.phase) * b.float;
+        }
+        group.rotation.y += 0.0008;
+      }
+      camera.position.x += (target.x * 3 - camera.position.x) * 0.04;
+      camera.position.y += (-target.y * 2 - (scrollY * 0.002) - camera.position.y) * 0.04;
+      camera.lookAt(0, 0, 0);
+      renderer.render(scene, camera);
+    }
+    animate();
+  }
+})();
+
+</script>
+</body>
+</html>
