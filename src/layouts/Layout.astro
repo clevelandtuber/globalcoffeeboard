@@ -1,0 +1,93 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  active?: string;         // which nav item to highlight
+  noindex?: boolean;
+}
+const {
+  title,
+  description = 'Live global coffee prices and a coffee knowledge encyclopedia for farmers, café owners, exporters and enthusiasts.',
+  active = '',
+  noindex = false,
+} = Astro.props;
+
+const nav = [
+  { href: '/',              label: 'Dashboard',  key: 'dashboard' },
+  { href: '/knowledge',     label: 'Knowledge',  key: 'knowledge' },
+  { href: '/#calculator',   label: 'Calculator', key: 'calculator' },
+  { href: '/#audience',     label: 'For You',    key: 'audience' },
+  { href: '/admin',         label: 'Admin',      key: 'admin' },
+];
+const year = new Date().getFullYear();
+---
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>"
+    />
+  </head>
+  <body>
+    <div class="bg-ambient"></div>
+    <canvas id="bean-canvas"></canvas>
+
+    <nav class="nav">
+      <div class="nav-inner">
+        <a class="brand" href="/"><span class="bean-mark"></span> Global<b>Coffee</b>Board</a>
+        <button class="nav-toggle" aria-label="Menu">☰</button>
+        <div class="nav-links">
+          {nav.map((n) => (
+            <a href={n.href} class={active === n.key ? 'active' : ''}>{n.label}</a>
+          ))}
+        </div>
+      </div>
+    </nav>
+
+    <slot />
+
+    <footer class="footer">
+      <div class="wrap">
+        <div class="footer-grid">
+          <div>
+            <div class="brand" style="margin-bottom:10px"><span class="bean-mark"></span> Global<b>Coffee</b>Board</div>
+            <p style="color:var(--text-muted);font-size:.92rem;max-width:340px">Global coffee knowledge and a daily price dashboard for the whole coffee community — with a special focus on Indian growers.</p>
+          </div>
+          <div>
+            <h5>Explore</h5>
+            <a href="/#dashboard">Live Dashboard</a>
+            <a href="/#calculator">Earnings Calculator</a>
+            <a href="/knowledge">Knowledge Base</a>
+            <a href="/admin">Admin Panel</a>
+          </div>
+          <div>
+            <h5>Data sources</h5>
+            <a href="https://finance.yahoo.com/quote/RC=F" target="_blank" rel="noopener">London Robusta (RC=F)</a>
+            <a href="https://finance.yahoo.com/quote/KC=F" target="_blank" rel="noopener">NY Arabica (KC=F)</a>
+            <a href="https://coffeeboard.gov.in/Market_Info.aspx" target="_blank" rel="noopener">Coffee Board of India</a>
+          </div>
+        </div>
+        <div class="fine">© {year} GlobalCoffeeBoard.com · Prices are indicative and for information only — not financial advice.</div>
+      </div>
+    </footer>
+
+    <!-- shared client behaviour -->
+    <script is:inline src="/assets/js/config.js"></script>
+    <script is:inline src="/assets/js/main.js"></script>
+    <slot name="scripts" />
+  </body>
+</html>

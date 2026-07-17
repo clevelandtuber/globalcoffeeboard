@@ -1,36 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Global Coffee Board — Live Coffee Prices & Knowledge</title>
-  <meta name="description" content="Live global coffee prices (London Robusta, NY Arabica), USD/INR, and the Coffee Board of India daily market report — plus an earnings calculator and a coffee knowledge encyclopedia. Built for Indian farmers, café owners, exporters and enthusiasts." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/style.css" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>" />
-</head>
-<body>
-  <div class="bg-ambient"></div>
-  <canvas id="bean-canvas"></canvas>
-
-  <!-- NAV -->
-  <nav class="nav">
-    <div class="nav-inner">
-      <a class="brand" href="index.html"><span class="bean-mark"></span> Global<b>Coffee</b>Board</a>
-      <button class="nav-toggle" aria-label="Menu">☰</button>
-      <div class="nav-links">
-        <a href="index.html" class="active">Dashboard</a>
-        <a href="knowledge.html">Knowledge</a>
-        <a href="index.html#calculator">Calculator</a>
-        <a href="index.html#audience">For You</a>
-        <a href="admin.html">Admin</a>
-      </div>
-    </div>
-  </nav>
-
-  <!-- HERO -->
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout
+  title="Global Coffee Board — Live Coffee Prices & Knowledge"
+  description="Live global coffee prices (London Robusta, NY Arabica), USD/INR, and the Coffee Board of India daily market report — plus an earnings calculator and a coffee knowledge encyclopedia."
+  active="dashboard"
+>
   <header class="hero">
     <div class="wrap">
       <div class="eyebrow">Global coffee intelligence · from bean to benchmark</div>
@@ -38,13 +13,12 @@
       <p class="lead">Live London Robusta &amp; New York Arabica benchmarks, USD/INR, and the Coffee Board of India daily report — converted to ₹/kg with a plain-language "sell or hold" verdict.</p>
       <div class="hero-cta">
         <a href="#dashboard" class="btn btn-primary">View live prices</a>
-        <a href="knowledge.html" class="btn btn-ghost">Explore knowledge →</a>
+        <a href="/knowledge" class="btn btn-ghost">Explore knowledge →</a>
       </div>
       <div class="scroll-hint">scroll to the dashboard ↓</div>
     </div>
   </header>
 
-  <!-- DASHBOARD -->
   <main>
     <section class="section" id="dashboard">
       <div class="wrap">
@@ -65,15 +39,11 @@
           <div class="glass price-card" id="card-local"></div>
         </div>
 
-        <!-- VERDICT -->
         <div class="verdict hold reveal" id="verdict"></div>
-
-        <!-- DIFFERENTIAL -->
         <div style="margin-top:22px" class="reveal" id="differential"></div>
       </div>
     </section>
 
-    <!-- CBI TABLE + CHART -->
     <section class="section" id="cbi">
       <div class="wrap">
         <div class="section-head reveal">
@@ -98,7 +68,6 @@
       </div>
     </section>
 
-    <!-- CALCULATOR -->
     <section class="section" id="calculator">
       <div class="wrap">
         <div class="section-head reveal">
@@ -139,7 +108,6 @@
       </div>
     </section>
 
-    <!-- AUDIENCE -->
     <section class="section" id="audience">
       <div class="wrap">
         <div class="section-head reveal">
@@ -147,15 +115,14 @@
           <h2>Whoever you are, start here</h2>
         </div>
         <div class="aud-grid reveal">
-          <a class="glass aud" href="knowledge.html#farmers"><div class="a-ico">🌾</div><h4>Farmers</h4><p>Daily prices in ₹/kg, sell-or-hold guidance and an earnings calculator.</p></a>
-          <a class="glass aud" href="knowledge.html#enthusiasts"><div class="a-ico">☕</div><h4>Enthusiasts</h4><p>Origins, varieties, processing and brewing — the whole bean story.</p></a>
-          <a class="glass aud" href="knowledge.html#entrepreneurs"><div class="a-ico">💼</div><h4>Café owners</h4><p>Costing, sourcing and market trends to price your menu with confidence.</p></a>
-          <a class="glass aud" href="knowledge.html#exporters"><div class="a-ico">🚢</div><h4>Exporters</h4><p>Benchmarks, differentials and FX to time shipments and contracts.</p></a>
+          <a class="glass aud" href="/knowledge#farmers"><div class="a-ico">🌾</div><h4>Farmers</h4><p>Daily prices in ₹/kg, sell-or-hold guidance and an earnings calculator.</p></a>
+          <a class="glass aud" href="/knowledge#enthusiasts"><div class="a-ico">☕</div><h4>Enthusiasts</h4><p>Origins, varieties, processing and brewing — the whole bean story.</p></a>
+          <a class="glass aud" href="/knowledge#entrepreneurs"><div class="a-ico">💼</div><h4>Café owners</h4><p>Costing, sourcing and market trends to price your menu with confidence.</p></a>
+          <a class="glass aud" href="/knowledge#exporters"><div class="a-ico">🚢</div><h4>Exporters</h4><p>Benchmarks, differentials and FX to time shipments and contracts.</p></a>
         </div>
       </div>
     </section>
 
-    <!-- KNOWLEDGE PREVIEW -->
     <section class="section">
       <div class="wrap">
         <div class="section-head reveal">
@@ -164,49 +131,20 @@
           <p>A growing knowledge base for the global coffee community.</p>
         </div>
         <div class="k-grid reveal">
-          <a href="knowledge.html#varieties" class="glass k-card tilt"><div class="k-ico">🫘</div><h3>Arabica vs Robusta</h3><p>Flavour, caffeine, altitude and why the price gap exists.</p><span class="k-tag">Read →</span></a>
-          <a href="knowledge.html#processing" class="glass k-card tilt"><div class="k-ico">💧</div><h3>Processing methods</h3><p>Washed, natural and honey — and how each shapes the cup.</p><span class="k-tag">Read →</span></a>
-          <a href="knowledge.html#india" class="glass k-card tilt"><div class="k-ico">🇮🇳</div><h3>Indian coffee regions</h3><p>Karnataka, Kerala, Tamil Nadu and the monsooned Malabar story.</p><span class="k-tag">Read →</span></a>
+          <a href="/knowledge#varieties" class="glass k-card tilt"><div class="k-ico">🫘</div><h3>Arabica vs Robusta</h3><p>Flavour, caffeine, altitude and why the price gap exists.</p><span class="k-tag">Read →</span></a>
+          <a href="/knowledge#processing" class="glass k-card tilt"><div class="k-ico">💧</div><h3>Processing methods</h3><p>Washed, natural and honey — and how each shapes the cup.</p><span class="k-tag">Read →</span></a>
+          <a href="/knowledge#india" class="glass k-card tilt"><div class="k-ico">🇮🇳</div><h3>Indian coffee regions</h3><p>Karnataka, Kerala, Tamil Nadu and the monsooned Malabar story.</p><span class="k-tag">Read →</span></a>
         </div>
         <div style="text-align:center;margin-top:30px" class="reveal">
-          <a href="knowledge.html" class="btn btn-primary">Open the encyclopedia</a>
+          <a href="/knowledge" class="btn btn-primary">Open the encyclopedia</a>
         </div>
       </div>
     </section>
   </main>
 
-  <!-- FOOTER -->
-  <footer class="footer">
-    <div class="wrap">
-      <div class="footer-grid">
-        <div>
-          <div class="brand" style="margin-bottom:10px"><span class="bean-mark"></span> Global<b>Coffee</b>Board</div>
-          <p style="color:var(--text-muted);font-size:.92rem;max-width:340px">Global coffee knowledge and a daily price dashboard for the whole coffee community — with a special focus on Indian growers.</p>
-        </div>
-        <div>
-          <h5>Explore</h5>
-          <a href="index.html#dashboard">Live Dashboard</a>
-          <a href="index.html#calculator">Earnings Calculator</a>
-          <a href="knowledge.html">Knowledge Base</a>
-          <a href="admin.html">Admin Panel</a>
-        </div>
-        <div>
-          <h5>Data sources</h5>
-          <a href="https://finance.yahoo.com/quote/RC=F" target="_blank" rel="noopener">London Robusta (RC=F)</a>
-          <a href="https://finance.yahoo.com/quote/KC=F" target="_blank" rel="noopener">NY Arabica (KC=F)</a>
-          <a href="https://coffeeboard.gov.in/Market_Info.aspx" target="_blank" rel="noopener">Coffee Board of India</a>
-        </div>
-      </div>
-      <div class="fine">
-        © <span data-year></span> GlobalCoffeeBoard.com · Prices are indicative and for information only — not financial advice.
-      </div>
-    </div>
-  </footer>
-
-  <script src="assets/js/config.js"></script>
-  <script src="assets/js/main.js"></script>
-  <script src="assets/js/dashboard.js"></script>
-  <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
-  <script src="assets/js/scene.js"></script>
-</body>
-</html>
+  <Fragment slot="scripts">
+    <script is:inline src="/assets/js/dashboard.js"></script>
+    <script is:inline src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+    <script is:inline src="/assets/js/scene.js"></script>
+  </Fragment>
+</Layout>

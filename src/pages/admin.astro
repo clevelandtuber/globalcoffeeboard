@@ -1,33 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin — Daily Price Entry · Global Coffee Board</title>
-  <meta name="robots" content="noindex" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/style.css" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>" />
-</head>
-<body>
-  <div class="bg-ambient"></div>
-
-  <nav class="nav">
-    <div class="nav-inner">
-      <a class="brand" href="index.html"><span class="bean-mark"></span> Global<b>Coffee</b>Board</a>
-      <button class="nav-toggle" aria-label="Menu">☰</button>
-      <div class="nav-links">
-        <a href="index.html">Dashboard</a>
-        <a href="knowledge.html">Knowledge</a>
-        <a href="index.html#calculator">Calculator</a>
-        <a href="index.html#audience">For You</a>
-        <a href="admin.html" class="active">Admin</a>
-      </div>
-    </div>
-  </nav>
-
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout
+  title="Admin — Daily Price Entry · Global Coffee Board"
+  active="admin"
+  noindex={true}
+>
   <header class="hero" style="padding:60px 0 20px">
     <div class="wrap">
       <div class="eyebrow">Admin panel</div>
@@ -46,7 +24,6 @@
           <b>Tip:</b> open the <a style="color:var(--gold-2)" href="https://coffeeboard.gov.in/Market_Info.aspx" target="_blank" rel="noopener">Coffee Board of India Daily Market Report</a>, copy today's grade prices into the table below, and click Save. Leave futures/FX blank to let the live feed provide them.
         </div>
 
-        <!-- Benchmarks -->
         <div class="glass" style="padding:26px;margin-bottom:22px">
           <h3 style="font-family:var(--font-head);margin-bottom:16px">Benchmarks &amp; FX <span style="font-size:.8rem;color:var(--text-dim);font-weight:400">(optional — leave blank for live feed)</span></h3>
           <div class="admin-grid">
@@ -58,7 +35,6 @@
           </div>
         </div>
 
-        <!-- CBI grades -->
         <div class="glass" style="padding:26px;margin-bottom:22px">
           <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px">
             <h3 style="font-family:var(--font-head)">Coffee Board of India — grade prices</h3>
@@ -72,7 +48,6 @@
           </div>
         </div>
 
-        <!-- Actions -->
         <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
           <button class="btn btn-primary" id="save-btn">💾 Save &amp; publish</button>
           <button class="btn" id="export-btn">⬇ Export JSON</button>
@@ -87,14 +62,7 @@
     </section>
   </main>
 
-  <footer class="footer">
-    <div class="wrap">
-      <div class="fine">© <span data-year></span> GlobalCoffeeBoard.com · Admin panel</div>
-    </div>
-  </footer>
-
-  <script src="assets/js/config.js"></script>
-  <script src="assets/js/main.js"></script>
-  <script src="assets/js/admin.js"></script>
-</body>
-</html>
+  <Fragment slot="scripts">
+    <script is:inline src="/assets/js/admin.js"></script>
+  </Fragment>
+</Layout>

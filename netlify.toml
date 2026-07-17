@@ -1,6 +1,10 @@
-# Netlify configuration — static site, no build step
+# Netlify configuration — Astro static build
 [build]
-  publish = "."
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
 
 [[headers]]
   for = "/*"
@@ -9,24 +13,8 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
 
-# Long cache for static assets
+# Long cache for hashed build assets
 [[headers]]
-  for = "/assets/*"
+  for = "/_astro/*"
   [headers.values]
-    Cache-Control = "public, max-age=86400"
-
-# Pretty URLs
-[[redirects]]
-  from = "/dashboard"
-  to = "/index.html"
-  status = 301
-
-[[redirects]]
-  from = "/knowledge"
-  to = "/knowledge.html"
-  status = 200
-
-[[redirects]]
-  from = "/admin"
-  to = "/admin.html"
-  status = 200
+    Cache-Control = "public, max-age=31536000, immutable"

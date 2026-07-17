@@ -1,33 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Coffee Knowledge Encyclopedia — Global Coffee Board</title>
-  <meta name="description" content="A coffee encyclopedia: Arabica vs Robusta, processing methods, brewing, Indian coffee regions, and guides for farmers, café owners and exporters." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/style.css" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>" />
-</head>
-<body>
-  <div class="bg-ambient"></div>
-
-  <nav class="nav">
-    <div class="nav-inner">
-      <a class="brand" href="index.html"><span class="bean-mark"></span> Global<b>Coffee</b>Board</a>
-      <button class="nav-toggle" aria-label="Menu">☰</button>
-      <div class="nav-links">
-        <a href="index.html">Dashboard</a>
-        <a href="knowledge.html" class="active">Knowledge</a>
-        <a href="index.html#calculator">Calculator</a>
-        <a href="index.html#audience">For You</a>
-        <a href="admin.html">Admin</a>
-      </div>
-    </div>
-  </nav>
-
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout
+  title="Coffee Knowledge Encyclopedia — Global Coffee Board"
+  description="A coffee encyclopedia: Arabica vs Robusta, processing methods, brewing, Indian coffee regions, and guides for farmers, café owners and exporters."
+  active="knowledge"
+>
   <header class="hero" style="padding:70px 0 30px">
     <div class="wrap">
       <div class="eyebrow">Coffee Encyclopedia</div>
@@ -37,7 +15,6 @@
   </header>
 
   <main>
-    <!-- TOPIC CARDS -->
     <section class="section" style="padding-top:20px">
       <div class="wrap">
         <div class="k-grid reveal">
@@ -113,7 +90,7 @@
           <p>Our dashboard combines all four: benchmark → convert with FX → compare to the local Coffee Board price → a differential and a plain-language verdict.</p>
 
           <h2 id="farmers">🌾 For farmers</h2>
-          <p>Use the <a style="color:var(--gold-2)" href="index.html#dashboard">dashboard</a> to see today's ₹/kg, the sell-or-hold verdict, and the <a style="color:var(--gold-2)" href="index.html#calculator">earnings calculator</a> to value your harvest. Track the differential: a strong local premium is often a good moment to sell.</p>
+          <p>Use the <a style="color:var(--gold-2)" href="/#dashboard">dashboard</a> to see today's ₹/kg, the sell-or-hold verdict, and the <a style="color:var(--gold-2)" href="/#calculator">earnings calculator</a> to value your harvest. Track the differential: a strong local premium is often a good moment to sell.</p>
 
           <h2 id="entrepreneurs">💼 For café owners &amp; entrepreneurs</h2>
           <p>Green-bean cost is the foundation of your cup economics. Watch benchmark trends and FX to time purchasing, and use processing/variety knowledge to build a menu story customers pay for.</p>
@@ -135,32 +112,4 @@
       </div>
     </section>
   </main>
-
-  <footer class="footer">
-    <div class="wrap">
-      <div class="footer-grid">
-        <div>
-          <div class="brand" style="margin-bottom:10px"><span class="bean-mark"></span> Global<b>Coffee</b>Board</div>
-          <p style="color:var(--text-muted);font-size:.92rem;max-width:340px">Global coffee knowledge and a daily price dashboard for the whole coffee community.</p>
-        </div>
-        <div>
-          <h5>Explore</h5>
-          <a href="index.html#dashboard">Live Dashboard</a>
-          <a href="index.html#calculator">Earnings Calculator</a>
-          <a href="knowledge.html">Knowledge Base</a>
-          <a href="admin.html">Admin Panel</a>
-        </div>
-        <div>
-          <h5>Topics</h5>
-          <a href="#varieties">Arabica vs Robusta</a>
-          <a href="#india">Indian coffee</a>
-          <a href="#market">Prices &amp; markets</a>
-        </div>
-      </div>
-      <div class="fine">© <span data-year></span> GlobalCoffeeBoard.com · Educational content for the global coffee community.</div>
-    </div>
-  </footer>
-
-  <script src="assets/js/main.js"></script>
-</body>
-</html>
+</Layout>
