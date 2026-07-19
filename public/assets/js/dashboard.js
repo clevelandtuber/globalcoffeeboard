@@ -159,13 +159,12 @@
     return ((now - prev) / prev) * 100;
   }
 
-  // Average local Robusta price in INR/kg from CBI table (Robusta rows), fallback to overall avg
-  function localRobustaInrKg() {
-    const rows = state.cbi.filter((r) => /robusta/i.test(r.grade));
-    const src = rows.length ? rows : state.cbi;
-    if (!src.length) return null;
-    const avg50 = src.reduce((s, r) => s + (r.inr50kg || 0), 0) / src.length;
-    return avg50 / 50; // INR per kg
+  // Average CBI price for a bean (matched by grade regex) -> { per50, perKg }.
+  function localAvg(beanRe) {
+    const rows = state.cbi.filter((r) => beanRe.test(r.grade));
+    if (!rows.length) return null;
+    const avg50 = rows.reduce((s, r) => s + (r.inr50kg || 0), 0) / rows.length;
+    return { per50: avg50, perKg: avg50 / 50 };
   }
 
   /* ---------- render ---------- */
@@ -208,13 +207,17 @@
       <div class="secondary">1 US Dollar</div>
       <div class="meta"><span></span> ${srcBadge("fx")}</div>`);
 
-    const localRob = localRobustaInrKg();
-    setHTML("card-local", `
-      <div class="label"><span class="dot" style="background:var(--latte)"></span> India Robusta (avg)</div>
-      <div class="primary">${F.inr(localRob, 2)}<span style="font-size:1rem;color:var(--text-dim)"> /kg</span></div>
-      <div class="secondary">Coffee Board grades</div>
-      <div class="meta"><span></span> ${srcBadge("cbi")}</div>`);
+    const locRob = localAvg(/robusta/i);
+    const locAra = localAvg(/arabica/i);
+    const localCard = (title, a) => `
+      <div class="label"><span class="dot" style="background:var(--latte)"></span> ${title}</div>
+      <div class="primary">${a ? F.inr(a.perKg, 2) : "—"}<span style="font-size:1rem;color:var(--text-dim)"> /kg</span></div>
+      <div class="secondary" style="font-size:.85rem;color:var(--text-dim)">${a ? F.inr(a.per50, 0) + " / 50 kg" : "Coffee Board grades"}</div>
+      <div class="meta"><span></span> ${srcBadge("cbi")}</div>`;
+    setHTML("card-local-robusta", localCard("India Robusta · avg", locRob));
+    setHTML("card-local-arabica", localCard("India Arabica · avg", locAra));
 
+    const localRob = locRob ? locRob.perKg : null;
     renderCbi();
     renderDifferential(robInr, localRob);
     renderVerdict(robPct, araPct, robInr, localRob);
@@ -324,23 +327,39 @@
   }
 
   /* ---------- earnings calculator ---------- */
-  const calc = { qtyKg: 60, bean: "robusta" };
+  const calc = { qtyKg: 60, bean: "robusta", outturn: 28, differential: 0, diffAuto: true };
 
-  // Uses the same futures price shown on the cards (from Admin, else live/sample),
-  // converted to ₹/kg.
+  // Futures price for the selected bean, converted to ₹/kg (from Admin, else live/sample).
   function currentInrKg() {
     if (calc.bean === "arabica") return conv.arabicaToInrKg(state.arabicaCentsLb, state.usdinr);
     return conv.robustaToInrKg(state.robustaUsdTonne, state.usdinr);
   }
 
+  // Auto differential (₹/kg) = local Coffee Board avg − futures parity, for the selected bean.
+  function autoDifferential() {
+    const loc = localAvg(calc.bean === "arabica" ? /arabica/i : /robusta/i);
+    const fut = currentInrKg();
+    if (!loc || !isFinite(fut)) return 0;
+    return loc.perKg - fut;
+  }
+
   function refreshCalc() {
     const out = document.getElementById("calc-out");
     if (!out) return;
-    const rate = currentInrKg();
-    const total = rate * calc.qtyKg;
+    const rate = currentInrKg();                        // ₹/kg futures
+    const diffInput = document.getElementById("calc-diff");
+    if (calc.diffAuto) {
+      calc.differential = autoDifferential();
+      if (diffInput && document.activeElement !== diffInput) diffInput.value = calc.differential.toFixed(2);
+    } else if (diffInput) {
+      calc.differential = Number(diffInput.value) || 0;
+    }
+    const effRate = rate + calc.differential;           // price the farmer realises
+    const cleanKg = calc.qtyKg * (calc.outturn / 100);  // outturn = % clean coffee recovered
+    const total = effRate * cleanKg;
     out.querySelector("[data-earn]").textContent = F.inr(total, 0);
     out.querySelector("[data-earn-sub]").textContent =
-      `${calc.qtyKg.toLocaleString("en-IN")} kg of ${calc.bean === "arabica" ? "Arabica" : "Robusta"} @ ${F.inr(rate, 2)}/kg (from futures)`;
+      `${calc.qtyKg.toLocaleString("en-IN")} kg × ${calc.outturn}% = ${F.num(cleanKg, 1)} kg clean ${calc.bean === "arabica" ? "Arabica" : "Robusta"} @ ${F.inr(effRate, 2)}/kg (futures ${F.inr(rate, 2)} + diff ${F.inr(calc.differential, 2)})`;
   }
 
   function wireCalc() {
@@ -364,6 +383,22 @@
         refreshCalc();
       });
     });
+    const outturn = document.getElementById("outturn");
+    if (outturn) outturn.addEventListener("change", () => { calc.outturn = Number(outturn.value) || 28; refreshCalc(); });
+    const diffInput = document.getElementById("calc-diff");
+    if (diffInput) diffInput.addEventListener("input", () => { calc.diffAuto = false; calc.differential = Number(diffInput.value) || 0; refreshCalc(); });
+  }
+
+  // Refresh only USD/INR (the sole live value on the cards; futures come from Admin).
+  async function refreshFx() {
+    try {
+      const api = await fetchApi();
+      if (api && api.usdinr != null) { state.usdinr = api.usdinr; state.source.fx = "live"; state.updated = Date.now(); render(); return; }
+    } catch {}
+    try {
+      const inr = await fetchFx();
+      state.usdinr = inr; state.source.fx = "live"; state.updated = Date.now(); render();
+    } catch {}
   }
 
   function setHTML(id, html) { const el = document.getElementById(id); if (el) el.innerHTML = html; }
@@ -373,7 +408,7 @@
     wireCalc();
     load();
     const btn = document.getElementById("refresh-btn");
-    if (btn) btn.addEventListener("click", () => { btn.classList.add("spin"); load().finally(() => btn.classList.remove("spin")); });
+    if (btn) btn.addEventListener("click", () => { btn.classList.add("spin"); refreshFx().finally(() => btn.classList.remove("spin")); });
     setInterval(load, C.refreshMs);
   });
 })();
