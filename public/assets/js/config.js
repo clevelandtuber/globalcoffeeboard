@@ -12,7 +12,10 @@ GCB.config = {
   },
   // Free, keyless, CORS-friendly FX endpoint
   fxUrl: "https://open.er-api.com/v6/latest/USD",
-  // Yahoo chart endpoint (wrapped in a CORS proxy for browser use)
+  // Server-side price fetcher (Netlify Function). Reliable, CORS-enabled.
+  // Falls back to the direct/proxy fetch below if this is unavailable (e.g. local `astro dev`).
+  apiUrl: "/api/prices",
+  // Yahoo chart endpoint (wrapped in a CORS proxy for browser use — fallback path)
   yahooBase: "https://query1.finance.yahoo.com/v8/finance/chart/",
   corsProxies: [
     "https://api.allorigins.win/raw?url=",
@@ -87,14 +90,16 @@ GCB.store = {
 };
 
 /* ---- Sensible seed values (used only if no live + no manual data) ----
-   These are illustrative fallbacks so the dashboard is never empty.
-   Real numbers come from the live feed or the admin panel. */
+   These are illustrative fallbacks so the dashboard is never empty; they
+   show as "◦ sample" on the cards. Real numbers come from the live feed
+   (Arabica, USD/INR) or the admin panel (Robusta).
+   Baseline snapshot: ~mid-July 2026. Robusta ≈ London Coffee $/tonne. */
 GCB.SEED = {
-  robustaUsdTonne: 4180,
-  arabicaCentsLb: 315,
-  usdinr: 86.4,
-  robustaPrevTonne: 4120,
-  arabicaPrevCentsLb: 322,
+  robustaUsdTonne: 3900,   // London Robusta ~ $3,900/t (mid-Jul 2026)
+  arabicaCentsLb: 305,     // NY Arabica ~ 305 ¢/lb
+  usdinr: 96.4,            // USD/INR ~ 96.4
+  robustaPrevTonne: 3850,
+  arabicaPrevCentsLb: 308,
   // Coffee Board of India — Daily Coffee Market Report (INR / 50 kg bag typical grades)
   cbi: [
     { grade: "Arabica Parchment (AB)", inr50kg: 24500 },

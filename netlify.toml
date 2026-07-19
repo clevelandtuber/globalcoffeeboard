@@ -6,6 +6,10 @@
 [build.environment]
   NODE_VERSION = "22"
 
+# Server-side price fetcher lives here (reachable at /api/prices)
+[functions]
+  directory = "netlify/functions"
+
 [[headers]]
   for = "/*"
   [headers.values]

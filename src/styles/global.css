@@ -208,7 +208,7 @@ h1, h2, h3, .head { font-family: var(--font-head); font-weight: 700; letter-spac
 }
 
 /* ---------- Hero ---------- */
-.hero { position: relative; padding: 92px 0 70px; text-align: center; }
+.hero { position: relative; padding: 84px 0 30px; text-align: center; }
 .hero h1 { font-size: clamp(2.4rem, 6vw, 4.4rem); line-height: 1.05; margin: 16px 0 14px; }
 .hero h1 .grad {
   background: linear-gradient(110deg, var(--gold-2), var(--latte), var(--gold));
@@ -216,11 +216,11 @@ h1, h2, h3, .head { font-family: var(--font-head); font-weight: 700; letter-spac
 }
 .hero p.lead { font-size: clamp(1rem, 2.2vw, 1.22rem); color: var(--text-muted); max-width: 640px; margin: 0 auto 28px; }
 .hero-cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
-.scroll-hint { margin-top: 46px; color: var(--text-dim); font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; }
+.scroll-hint { margin-top: 22px; color: var(--text-dim); font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; }
 
 /* ---------- Section ---------- */
-.section { padding: 64px 0; position: relative; }
-.section-head { text-align: center; margin-bottom: 40px; }
+.section { padding: 44px 0; position: relative; }
+.section-head { text-align: center; margin-bottom: 28px; }
 .section-head h2 { font-size: clamp(1.8rem, 4vw, 2.7rem); margin-top: 8px; }
 .section-head p { color: var(--text-muted); max-width: 620px; margin: 10px auto 0; }
 

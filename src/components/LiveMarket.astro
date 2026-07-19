@@ -1,0 +1,94 @@
+---
+/*
+  Live market section — TradingView official free widgets (DISPLAY ONLY).
+    • Ticker tape: Arabica, Robusta, USD/INR
+    • Advanced charts: Robusta (London) and Arabica (NY)
+
+  Widgets are created by a small client-side script (below) rather than the
+  copy-paste embed, because the embed's inline-JSON <script> is unreliable
+  inside Astro. This programmatic method is the robust, framework-safe way.
+
+  These are visual only — their values can't be read back into our JS, so the
+  dashboard cards/calculator still use the live feed / admin / sample data.
+*/
+---
+<section class="section" style="padding-top:6px;padding-bottom:22px">
+  <div class="wrap" style="max-width:1560px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <span class="eyebrow">Live market</span>
+      <span class="src-badge">● live from TradingView</span>
+    </div>
+
+    <!-- Ticker strip -->
+    <div class="glass" style="padding:6px 8px;margin-bottom:16px;min-height:46px">
+      <div id="tv-ticker" class="tradingview-widget-container"></div>
+    </div>
+
+    <!-- Charts -->
+    <div class="tv-charts">
+      <div class="glass" style="padding:12px">
+        <div class="eyebrow" style="padding:2px 4px 10px">Robusta · London (RC)</div>
+        <div id="tv-chart-robusta" class="tradingview-widget-container tv-chart"></div>
+      </div>
+      <div class="glass" style="padding:12px">
+        <div class="eyebrow" style="padding:2px 4px 10px">Arabica · New York (KC)</div>
+        <div id="tv-chart-arabica" class="tradingview-widget-container tv-chart"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .tv-charts { display: grid; grid-template-columns: 1fr; gap: 24px; }
+  .tv-chart { height: 560px; }
+  .tv-chart .tradingview-widget-container__widget { height: 100%; }
+  @media (max-width: 860px) { .tv-chart { height: 440px; } }
+</style>
+
+<script is:inline>
+  (function () {
+    function tv(id, src, config) {
+      var host = document.getElementById(id);
+      if (!host) return;
+      var widget = document.createElement("div");
+      widget.className = "tradingview-widget-container__widget";
+      host.appendChild(widget);
+      var s = document.createElement("script");
+      s.type = "text/javascript";
+      s.async = true;
+      s.src = src;
+      s.text = JSON.stringify(config); // TradingView reads its config from here
+      host.appendChild(s);
+    }
+
+    tv("tv-ticker", "https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js", {
+      symbols: [
+        { proName: "CAPITALCOM:COFFEE", title: "Arabica" },
+        { proName: "BLACKBULL:ROBUSTA", title: "Robusta" },
+        { proName: "FX_IDC:USDINR", title: "USD / INR" }
+      ],
+      colorTheme: "dark",
+      isTransparent: true,
+      showSymbolLogo: true,
+      displayMode: "adaptive",
+      locale: "en"
+    });
+
+    function chart(id, symbol) {
+      tv(id, "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js", {
+        symbol: symbol,
+        interval: "D",
+        timezone: "Asia/Kolkata",
+        theme: "dark",
+        style: "1",
+        locale: "en",
+        autosize: true,
+        hide_side_toolbar: true,
+        allow_symbol_change: false,
+        backgroundColor: "rgba(14, 10, 5, 0.6)"
+      });
+    }
+    chart("tv-chart-robusta", "BLACKBULL:ROBUSTA");
+    chart("tv-chart-arabica", "CAPITALCOM:COFFEE");
+  })();
+</script>

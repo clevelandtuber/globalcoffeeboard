@@ -45,6 +45,14 @@
     throw lastErr || new Error("all proxies failed");
   }
 
+  // Primary source: our Netlify function (server-side, reliable).
+  // Returns { arabica:{price,prev}|null, robusta:{price,prev}|null, usdinr:number|null }.
+  async function fetchApi() {
+    const r = await fetch(C.apiUrl, { cache: "no-store" });
+    if (!r.ok) throw new Error("api http " + r.status);
+    return await r.json();
+  }
+
   /* ---------- assemble ---------- */
   async function load() {
     const manual = store.get(K.manual, null);
@@ -72,12 +80,32 @@
 
     render(); // paint immediately with best-known data
 
-    // try live overlays (non-blocking, best-effort)
-    const jobs = [
-      fetchFx().then((inr) => { state.usdinr = inr; state.source.fx = "live"; }).catch(() => {}),
-      fetchYahoo(C.symbols.robusta).then((d) => { state.robustaUsdTonne = d.price; state.robustaPrevTonne = d.prev; state.source.robusta = "live"; }).catch(() => {}),
-      fetchYahoo(C.symbols.arabica).then((d) => { state.arabicaCentsLb = d.price; state.arabicaPrevCentsLb = d.prev; state.source.arabica = "live"; }).catch(() => {}),
-    ];
+    // 1) Primary: our server-side fetcher (reliable, no browser proxy).
+    try {
+      const api = await fetchApi();
+      if (api) {
+        if (api.arabica?.price != null) {
+          state.arabicaCentsLb = api.arabica.price;
+          state.arabicaPrevCentsLb = api.arabica.prev ?? state.arabicaPrevCentsLb;
+          state.source.arabica = "live";
+        }
+        if (api.robusta?.price != null) {
+          state.robustaUsdTonne = api.robusta.price;
+          state.robustaPrevTonne = api.robusta.prev ?? state.robustaPrevTonne;
+          state.source.robusta = "live";
+        }
+        if (api.usdinr != null) { state.usdinr = api.usdinr; state.source.fx = "live"; }
+      }
+    } catch { /* fetcher unavailable (e.g. local `astro dev`) — fall back below */ }
+
+    // 2) Fallback: direct/proxy fetch for anything not yet live (keeps local dev working).
+    const jobs = [];
+    if (state.source.fx !== "live")
+      jobs.push(fetchFx().then((inr) => { state.usdinr = inr; state.source.fx = "live"; }).catch(() => {}));
+    if (state.source.arabica !== "live")
+      jobs.push(fetchYahoo(C.symbols.arabica).then((d) => { state.arabicaCentsLb = d.price; state.arabicaPrevCentsLb = d.prev; state.source.arabica = "live"; }).catch(() => {}));
+    if (state.source.robusta !== "live")
+      jobs.push(fetchYahoo(C.symbols.robusta).then((d) => { state.robustaUsdTonne = d.price; state.robustaPrevTonne = d.prev; state.source.robusta = "live"; }).catch(() => {}));
     await Promise.allSettled(jobs);
     if (state.source.fx === "live" || state.source.robusta === "live" || state.source.arabica === "live") {
       state.updated = Date.now();

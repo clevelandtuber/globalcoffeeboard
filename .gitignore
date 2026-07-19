@@ -8,7 +8,7 @@ dist/
 # system / editor
 .DS_Store
 .claude/*
-!.claude/skills/
+!.claude/skills
 scratchpad/
 *.log
 
