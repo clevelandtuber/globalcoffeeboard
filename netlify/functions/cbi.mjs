@@ -15,7 +15,7 @@
    then falls back to its previous data. Result is cached ~3h since the
    report is daily.
    ============================================================ */
-import { PDFParse } from "pdf-parse";
+import { getDocumentProxy, extractText } from "unpdf";
 
 export const config = { path: "/api/cbi" };
 
@@ -83,16 +83,18 @@ function parseReport(text) {
   }
 
   // ---- official ICE front-month futures ----
+  // Text after the "US $ /Tonne ..." header looks like:
+  //   "... July - 2026 321.30 682.14 July - 2026 3867 175.40 372.39 Sept-2026 ..."
   let futures = null;
-  const fm = text.match(/US \$ ?\/ ?Tonne[^\n]*\n([^\n]+)/i);
-  if (fm) {
-    const row = fm[1];
-    const ara = (row.match(/([0-9]{2,3}\.[0-9]{2})/) || [])[1];    // first ¢/lb decimal
-    const rob = (row.match(/\b([34][0-9]{3})\b/) || [])[1];        // $/tonne integer
+  const h = text.search(/US ?\$ ?\/ ?Tonne/i);
+  if (h >= 0) {
+    const seg = text.slice(h, h + 220);
+    const ara = (seg.match(/([0-9]{2,3}\.[0-9]{2})/) || [])[1];    // first ¢/lb decimal (Arabica)
+    const rob = (seg.match(/\b([34][0-9]{3})\b/) || [])[1];        // first $/tonne integer (Robusta)
     futures = { arabicaCentsLb: ara ? +ara : null, robustaUsdTonne: rob ? +rob : null };
   }
 
-  const d = text.match(/Daily Coffee Market Report,\s*([^\n]+)/);
+  const d = text.match(/Daily Coffee Market Report,\s*(\w+day,?\s*\w+\s+\d{1,2},?\s*\d{4})/);
   return { date: d ? d[1].trim() : null, grades, futures };
 }
 
@@ -116,8 +118,8 @@ export default async () => {
   if (cache && now - cacheAt < TTL_MS) return json(cache);
   try {
     const pdf = await fetchReportPdf();
-    const res = await new PDFParse({ data: new Uint8Array(pdf) }).getText();
-    const text = res.text || (res.pages || []).map((p) => p.text).join("\n");
+    const doc = await getDocumentProxy(new Uint8Array(pdf));
+    const { text } = await extractText(doc, { mergePages: true });
     const parsed = parseReport(text);
     if (!parsed.grades.length) throw new Error("no grade prices parsed");
     const data = { ok: true, ...parsed, updated: now };

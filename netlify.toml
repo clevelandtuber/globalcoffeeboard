@@ -9,8 +9,8 @@
 # Server-side functions (reachable at /api/prices and /api/cbi)
 [functions]
   directory = "netlify/functions"
-  # pdf-parse / pdfjs don't bundle cleanly — ship them as-is
-  external_node_modules = ["pdf-parse"]
+  # ship the PDF reader as-is (serverless-friendly build)
+  external_node_modules = ["unpdf"]
 
 [[headers]]
   for = "/*"
