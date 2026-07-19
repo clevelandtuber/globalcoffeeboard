@@ -6,9 +6,11 @@
 [build.environment]
   NODE_VERSION = "22"
 
-# Server-side price fetcher lives here (reachable at /api/prices)
+# Server-side functions (reachable at /api/prices and /api/cbi)
 [functions]
   directory = "netlify/functions"
+  # pdf-parse / pdfjs don't bundle cleanly — ship them as-is
+  external_node_modules = ["pdf-parse"]
 
 [[headers]]
   for = "/*"

@@ -15,6 +15,8 @@ GCB.config = {
   // Server-side price fetcher (Netlify Function). Reliable, CORS-enabled.
   // Falls back to the direct/proxy fetch below if this is unavailable (e.g. local `astro dev`).
   apiUrl: "/api/prices",
+  // Coffee Board of India daily report scraper (Netlify Function).
+  cbiUrl: "/api/cbi",
   // Yahoo chart endpoint (wrapped in a CORS proxy for browser use — fallback path)
   yahooBase: "https://query1.finance.yahoo.com/v8/finance/chart/",
   corsProxies: [

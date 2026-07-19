@@ -52,10 +52,14 @@ import LiveMarket from '../components/LiveMarket.astro';
         <div class="section-head reveal">
           <div class="eyebrow">Coffee Board of India</div>
           <h2>Daily Coffee Market Report</h2>
-          <p>Indian farm-gate reference prices by grade. Source: <a style="color:var(--gold-2)" href="https://coffeeboard.gov.in/Market_Info.aspx" target="_blank" rel="noopener">coffeeboard.gov.in</a> — maintained daily via the admin panel.</p>
+          <p>Official Indian farm-gate grade prices (₹), auto-updated from the <a style="color:var(--gold-2)" href="https://coffeeboard.gov.in/Market_Info.aspx" target="_blank" rel="noopener">Coffee Board of India daily report ↗</a>. <span id="cbi-date" style="color:var(--text-dim)"></span></p>
         </div>
         <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:24px;align-items:start" class="cbi-layout">
-          <div class="glass reveal" style="padding:8px 8px 4px">
+          <div class="glass reveal" style="padding:14px 14px 6px">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:0 4px 10px">
+              <span class="eyebrow">Farm-gate grades (Karnataka)</span>
+              <span id="cbi-badge" class="src-badge"></span>
+            </div>
             <div class="table-wrap">
               <table class="data">
                 <thead><tr><th>Grade</th><th style="text-align:right">₹ / 50 kg</th><th style="text-align:right">₹ / kg</th></tr></thead>
@@ -92,6 +96,7 @@ import LiveMarket from '../components/LiveMarket.astro';
                 <label>Quantity</label>
                 <div class="chip-row">
                   <div class="chip" data-qty="1">1 kg</div>
+                  <div class="chip" data-qty="50">50 kg (bag)</div>
                   <div class="chip active" data-qty="60">60 kg (bag)</div>
                   <div class="chip" data-qty="100">100 kg</div>
                   <div class="chip" data-qty="1000">1 tonne</div>
@@ -99,7 +104,7 @@ import LiveMarket from '../components/LiveMarket.astro';
                 </div>
                 <input id="qty-custom" type="number" inputmode="numeric" placeholder="Enter kg" style="display:none;margin-top:10px" />
               </div>
-              <p style="color:var(--text-dim);font-size:.85rem">Robusta uses the Coffee Board local average where available; Arabica uses the NY benchmark converted to ₹/kg.</p>
+              <p style="color:var(--text-dim);font-size:.85rem">Based on today's <b>futures</b> prices (Robusta US$/tonne, Arabica US¢/lb) from the Admin panel, converted to ₹/kg at the live USD/INR rate.</p>
             </div>
             <div class="glass calc-result" id="calc-out">
               <div class="eyebrow">Estimated value</div>

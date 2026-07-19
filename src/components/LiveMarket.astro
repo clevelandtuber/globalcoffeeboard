@@ -14,10 +14,15 @@
 ---
 <section class="section" style="padding-top:6px;padding-bottom:22px">
   <div class="wrap" style="max-width:1560px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-      <span class="eyebrow">Live market</span>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <span class="eyebrow">Live coffee futures</span>
       <span class="src-badge">● live from TradingView</span>
     </div>
+    <p style="color:var(--text-dim);font-size:.82rem;margin-bottom:12px;max-width:820px">
+      Live Arabica &amp; Robusta futures (broker feed, ~15-min delayed; closed at weekends).
+      <b>Robusta</b> is quoted in <b>US$ / tonne</b>; <b>Arabica</b> here in <b>US$ / lb</b> —
+      multiply by 100 for the <b>US¢/lb</b> figure shown on the price cards below.
+    </p>
 
     <!-- Ticker strip -->
     <div class="glass" style="padding:6px 8px;margin-bottom:16px;min-height:46px">
@@ -27,11 +32,11 @@
     <!-- Charts -->
     <div class="tv-charts">
       <div class="glass" style="padding:12px">
-        <div class="eyebrow" style="padding:2px 4px 10px">Robusta · London (RC)</div>
+        <div class="eyebrow" style="padding:2px 4px 10px">Robusta · London futures · US$/tonne</div>
         <div id="tv-chart-robusta" class="tradingview-widget-container tv-chart"></div>
       </div>
       <div class="glass" style="padding:12px">
-        <div class="eyebrow" style="padding:2px 4px 10px">Arabica · New York (KC)</div>
+        <div class="eyebrow" style="padding:2px 4px 10px">Arabica · New York futures · US$/lb</div>
         <div id="tv-chart-arabica" class="tradingview-widget-container tv-chart"></div>
       </div>
     </div>
