@@ -3,6 +3,36 @@
    Dark espresso theme · glassmorphism · 3D-ready
    ============================================================ */
 
+/* --- Tailwind CSS v4 ---------------------------------------------------
+   Theme + utilities only (NO preflight) so Tailwind is purely additive and
+   does not reset the existing custom design (e.g. encyclopedia list bullets).
+   To adopt Tailwind's full base reset later, replace the two imports below
+   with a single:  @import "tailwindcss";
+---------------------------------------------------------------------- */
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+/* Expose the coffee palette as Tailwind design tokens so brand-aware
+   utilities work: bg-gold, text-latte, text-crema, border-caramel, etc.
+   (@theme must be top-level — never nested in a selector or media query.) */
+@theme {
+  --color-espresso: #0e0a05;
+  --color-espresso-800: #17100a;
+  --color-espresso-700: #201710;
+  --color-crema: #c8a27a;
+  --color-latte: #e6cba6;
+  --color-gold: #e0a458;
+  --color-gold-bright: #f0c069;
+  --color-caramel: #b5762f;
+  --color-good: #4fbf8b;
+  --color-bad: #e56a5f;
+  --color-warn: #e8b24a;
+  --color-ink: #f4ecdf;
+
+  --font-head: "Playfair Display", Georgia, serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
 :root {
   /* Espresso palette */
   --bg-0: #0e0a05;

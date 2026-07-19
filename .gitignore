@@ -7,10 +7,15 @@ dist/
 
 # system / editor
 .DS_Store
-.claude/
+.claude/*
+!.claude/skills/
 scratchpad/
 *.log
 
 # env
 .env
 .env.production
+
+# Tailwind docs snapshot — source-available upstream content, do not redistribute
+**/tailwind-4-docs/references/docs/
+**/tailwind-4-docs/references/docs-index.tsx
