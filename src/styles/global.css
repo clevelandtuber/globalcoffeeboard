@@ -341,17 +341,37 @@ input:focus, select:focus { outline: none; border-color: var(--gold); background
 @keyframes spin { to { transform: rotate(360deg); } }
 #refresh-btn.spin { pointer-events: none; opacity: 0.75; animation: spin 0.9s linear infinite; }
 
-/* ---------- Responsive ---------- */
-@media (max-width: 860px) {
+/* ============================================================
+   Responsive (mobile-first base above; breakpoints layer up)
+   Guardrails: nav collapses <768px · multi-column ≥1024px ·
+   content capped ≤1440px · 44px min touch targets on mobile.
+   ============================================================ */
+
+/* Tablet & below: stack the multi-column sections into one column */
+@media (max-width: 1023.98px) {
   .calc { grid-template-columns: 1fr; }
   .cbi-layout { grid-template-columns: 1fr !important; }
   .footer-grid { grid-template-columns: 1fr; gap: 20px; }
+}
+
+/* Mobile: collapse nav into a slide-down menu + comfortable touch targets */
+@media (max-width: 767.98px) {
   .nav-links {
     position: fixed; inset: 62px 0 auto 0; flex-direction: column; align-items: stretch;
     background: rgba(14,10,5,0.97); border-bottom: 1px solid var(--border); padding: 14px 18px;
     transform: translateY(-140%); transition: transform .3s; gap: 4px;
   }
   .nav-links.open { transform: none; }
-  .nav-links a { padding: 12px 14px; }
-  .nav-toggle { display: block; }
+  .nav-links a { padding: 13px 14px; min-height: 44px; display: flex; align-items: center; }
+  .nav-toggle { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; }
+  .wrap { padding: 0 18px; }
+  .hero { padding: 58px 0 24px; }
+  /* 44×44 minimum tap area for interactive controls */
+  .btn, .chip { min-height: 44px; }
+  .chip { display: inline-flex; align-items: center; }
+}
+
+/* Ultrawide: never let content stretch past 1440px */
+@media (min-width: 1440px) {
+  .wrap { max-width: 1440px; }
 }

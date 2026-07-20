@@ -42,8 +42,59 @@ import LiveMarket from '../components/LiveMarket.astro';
           <div class="glass price-card" id="card-local-arabica"></div>
         </div>
 
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:0">
+      <div class="wrap">
         <div class="verdict hold reveal" id="verdict"></div>
-        <div style="margin-top:22px" class="reveal" id="differential"></div>
+      </div>
+    </section>
+
+    <section class="section" id="calculator">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <div class="eyebrow">Earnings Calculator</div>
+          <h2>What is your harvest worth today?</h2>
+          <p>Pick a bean, enter your outturn, and see the value at today's prices.</p>
+        </div>
+        <div class="glass reveal" style="padding:30px">
+          <div class="calc">
+            <div>
+              <div class="field">
+                <label>Bean type</label>
+                <div class="chip-row">
+                  <div class="chip active" data-bean="robusta">Robusta</div>
+                  <div class="chip" data-bean="arabica">Arabica</div>
+                </div>
+              </div>
+              <div class="field">
+                <label>Quantity</label>
+                <input id="outturn" type="number" step="1" min="0" value="0" placeholder="Outturn — yield in kg (e.g. 26)" style="font-size:1.6rem;padding:16px 18px;font-weight:700" />
+                <div style="font-size:.78rem;color:var(--text-dim);margin:7px 2px 12px">Outturn = clean-coffee yield in kg. Enter it here, <b>or</b> pick a fixed quantity below:</div>
+                <div class="chip-row">
+                  <div class="chip" data-qty="1">1 kg</div>
+                  <div class="chip" data-qty="50">50 kg (bag)</div>
+                  <div class="chip" data-qty="60">60 kg (bag)</div>
+                  <div class="chip" data-qty="100">100 kg</div>
+                  <div class="chip" data-qty="1000">1 tonne</div>
+                  <div class="chip" data-qty="custom">Custom</div>
+                </div>
+                <input id="qty-custom" type="number" inputmode="numeric" placeholder="Enter kg" style="display:none;margin-top:10px" />
+              </div>
+              <div class="field">
+                <label>Differential (US$/tonne) <span style="color:var(--text-dim);font-weight:400;text-transform:none;letter-spacing:0">— default 250, editable</span></label>
+                <input id="calc-diff" type="number" step="1" value="250" />
+              </div>
+              <p style="color:var(--text-dim);font-size:.85rem">Value = ((<b>futures</b> price + differential) ÷ 1000) × USD/INR × kg — where <b>kg = your outturn</b> (yield) unless you pick a fixed quantity. Futures price &amp; USD/INR come from the cards; the differential (US$/tonne) defaults to 250 and is editable.</p>
+            </div>
+            <div class="glass calc-result" id="calc-out">
+              <div class="eyebrow">Estimated value</div>
+              <div class="earn" data-earn>—</div>
+              <div class="earn-sub" data-earn-sub>—</div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -75,94 +126,9 @@ import LiveMarket from '../components/LiveMarket.astro';
       </div>
     </section>
 
-    <section class="section" id="calculator">
-      <div class="wrap">
-        <div class="section-head reveal">
-          <div class="eyebrow">Earnings Calculator</div>
-          <h2>What is your harvest worth today?</h2>
-          <p>Pick a bean, choose a quantity, and see the value at today's prices.</p>
-        </div>
-        <div class="glass reveal" style="padding:30px">
-          <div class="calc">
-            <div>
-              <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start">
-                <div class="field" style="flex:1;min-width:180px">
-                  <label>Bean type</label>
-                  <div class="chip-row">
-                    <div class="chip active" data-bean="robusta">Robusta</div>
-                    <div class="chip" data-bean="arabica">Arabica</div>
-                  </div>
-                </div>
-                <div class="field" style="min-width:130px">
-                  <label>Outturn</label>
-                  <select id="outturn">
-                    <option value="25">25</option>
-                    <option value="26">26</option>
-                    <option value="27">27</option>
-                    <option value="28" selected>28</option>
-                    <option value="29">29</option>
-                    <option value="30">30</option>
-                  </select>
-                </div>
-              </div>
-              <div class="field">
-                <label>Quantity</label>
-                <div class="chip-row">
-                  <div class="chip" data-qty="1">1 kg</div>
-                  <div class="chip" data-qty="50">50 kg (bag)</div>
-                  <div class="chip active" data-qty="60">60 kg (bag)</div>
-                  <div class="chip" data-qty="100">100 kg</div>
-                  <div class="chip" data-qty="1000">1 tonne</div>
-                  <div class="chip" data-qty="custom">Custom</div>
-                </div>
-                <input id="qty-custom" type="number" inputmode="numeric" placeholder="Enter kg" style="display:none;margin-top:10px" />
-              </div>
-              <div class="field">
-                <label>Differential (₹/kg) <span style="color:var(--text-dim);font-weight:400;text-transform:none;letter-spacing:0">— auto-filled, editable</span></label>
-                <input id="calc-diff" type="number" step="0.01" />
-              </div>
-              <p style="color:var(--text-dim);font-size:.85rem">Value = quantity × (outturn ÷ 100) × (<b>futures</b> price/kg + differential). Futures come from the Admin panel; outturn is the % of clean coffee recovered; the differential (local premium/discount over futures) is auto-filled and editable.</p>
-            </div>
-            <div class="glass calc-result" id="calc-out">
-              <div class="eyebrow">Estimated value</div>
-              <div class="earn" data-earn>—</div>
-              <div class="earn-sub" data-earn-sub>—</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="audience">
-      <div class="wrap">
-        <div class="section-head reveal">
-          <div class="eyebrow">Built for everyone in coffee</div>
-          <h2>Whoever you are, start here</h2>
-        </div>
-        <div class="aud-grid reveal">
-          <a class="glass aud" href="/knowledge#farmers"><div class="a-ico">🌾</div><h4>Farmers</h4><p>Daily prices in ₹/kg, sell-or-hold guidance and an earnings calculator.</p></a>
-          <a class="glass aud" href="/knowledge#enthusiasts"><div class="a-ico">☕</div><h4>Enthusiasts</h4><p>Origins, varieties, processing and brewing — the whole bean story.</p></a>
-          <a class="glass aud" href="/knowledge#entrepreneurs"><div class="a-ico">💼</div><h4>Café owners</h4><p>Costing, sourcing and market trends to price your menu with confidence.</p></a>
-          <a class="glass aud" href="/knowledge#exporters"><div class="a-ico">🚢</div><h4>Exporters</h4><p>Benchmarks, differentials and FX to time shipments and contracts.</p></a>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="wrap">
-        <div class="section-head reveal">
-          <div class="eyebrow">Coffee Encyclopedia</div>
-          <h2>Learn the craft, from cherry to cup</h2>
-          <p>A growing knowledge base for the global coffee community.</p>
-        </div>
-        <div class="k-grid reveal">
-          <a href="/knowledge#varieties" class="glass k-card tilt"><div class="k-ico">🫘</div><h3>Arabica vs Robusta</h3><p>Flavour, caffeine, altitude and why the price gap exists.</p><span class="k-tag">Read →</span></a>
-          <a href="/knowledge#processing" class="glass k-card tilt"><div class="k-ico">💧</div><h3>Processing methods</h3><p>Washed, natural and honey — and how each shapes the cup.</p><span class="k-tag">Read →</span></a>
-          <a href="/knowledge#india" class="glass k-card tilt"><div class="k-ico">🇮🇳</div><h3>Indian coffee regions</h3><p>Karnataka, Kerala, Tamil Nadu and the monsooned Malabar story.</p><span class="k-tag">Read →</span></a>
-        </div>
-        <div style="text-align:center;margin-top:30px" class="reveal">
-          <a href="/knowledge" class="btn btn-primary">Open the encyclopedia</a>
-        </div>
+    <section class="section" style="padding-top:0">
+      <div class="wrap" style="text-align:center">
+        <a href="/knowledge" class="btn btn-primary">Open the coffee encyclopedia</a>
       </div>
     </section>
   </main>

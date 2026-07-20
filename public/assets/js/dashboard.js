@@ -219,7 +219,6 @@
 
     const localRob = locRob ? locRob.perKg : null;
     renderCbi();
-    renderDifferential(robInr, localRob);
     renderVerdict(robPct, araPct, robInr, localRob);
     renderChart();
     refreshCalc();
@@ -247,30 +246,6 @@
     }).join("");
   }
 
-  function renderDifferential(robInr, localRob) {
-    const el = document.getElementById("differential");
-    if (!el) return;
-    if (localRob == null) { el.innerHTML = ""; return; }
-    const diff = localRob - robInr;
-    const pct = (diff / robInr) * 100;
-    const positive = diff >= 0;
-    el.innerHTML = `
-      <div class="glass" style="padding:22px 24px">
-        <div class="eyebrow">Indian Market Differential</div>
-        <div style="display:flex;align-items:baseline;gap:12px;margin-top:8px;flex-wrap:wrap">
-          <div style="font-family:var(--font-head);font-size:2rem;font-weight:800;color:${positive ? 'var(--good)' : 'var(--bad)'}">
-            ${positive ? "+" : ""}${F.inr(diff, 2)}/kg
-          </div>
-          <div style="color:var(--text-muted)">(${F.pct(pct)} vs London-parity)</div>
-        </div>
-        <p style="color:var(--text-muted);margin-top:8px;font-size:.92rem">
-          Local Coffee Board price is <b style="color:var(--text)">${positive ? "above" : "below"}</b> the London Robusta price converted to ₹/kg
-          (${F.inr(robInr, 2)}/kg). ${positive
-            ? "A positive differential means Indian buyers are paying a premium over the world benchmark."
-            : "A negative differential means local prices trail the world benchmark — often exporting looks more attractive."}
-        </p>
-      </div>`;
-  }
 
   function renderVerdict(robPct, araPct, robInr, localRob) {
     const el = document.getElementById("verdict");
@@ -327,46 +302,42 @@
   }
 
   /* ---------- earnings calculator ---------- */
-  const calc = { qtyKg: 60, bean: "robusta", outturn: 28, differential: 0, diffAuto: true };
+  const calc = { bean: "robusta", differential: 250, outturn: 0, qtyKg: 0, mode: "outturn" };
 
-  // Futures price for the selected bean, converted to ₹/kg (from Admin, else live/sample).
-  function currentInrKg() {
-    if (calc.bean === "arabica") return conv.arabicaToInrKg(state.arabicaCentsLb, state.usdinr);
-    return conv.robustaToInrKg(state.robustaUsdTonne, state.usdinr);
+  // Selected bean's futures price expressed in US$/tonne (Robusta is already $/tonne;
+  // Arabica ¢/lb is converted: ¢/lb ÷ 100 × 2204.62 lb/tonne).
+  function tonnePrice() {
+    if (calc.bean === "arabica") return (state.arabicaCentsLb || 0) * (GCB.LB_PER_TONNE / 100);
+    return state.robustaUsdTonne || 0;
   }
 
-  // Auto differential (₹/kg) = local Coffee Board avg − futures parity, for the selected bean.
-  function autoDifferential() {
-    const loc = localAvg(calc.bean === "arabica" ? /arabica/i : /robusta/i);
-    const fut = currentInrKg();
-    if (!loc || !isFinite(fut)) return 0;
-    return loc.perKg - fut;
+  // How many kg to value: the outturn (yield in kg) unless a fixed quantity was picked.
+  function effectiveKg() {
+    if (calc.mode === "qty") return calc.qtyKg || 0;
+    return calc.outturn > 0 ? calc.outturn : 0;
   }
 
+  // Value = ((futures $/tonne + differential $/tonne) ÷ 1000) × USD/INR × kg
   function refreshCalc() {
     const out = document.getElementById("calc-out");
     if (!out) return;
-    const rate = currentInrKg();                        // ₹/kg futures
-    const diffInput = document.getElementById("calc-diff");
-    if (calc.diffAuto) {
-      calc.differential = autoDifferential();
-      if (diffInput && document.activeElement !== diffInput) diffInput.value = calc.differential.toFixed(2);
-    } else if (diffInput) {
-      calc.differential = Number(diffInput.value) || 0;
-    }
-    const effRate = rate + calc.differential;           // price the farmer realises
-    const cleanKg = calc.qtyKg * (calc.outturn / 100);  // outturn = % clean coffee recovered
-    const total = effRate * cleanKg;
+    const usd = tonnePrice();
+    const perKg = ((usd + calc.differential) / 1000) * (state.usdinr || 0); // ₹/kg
+    const kg = effectiveKg();
+    const total = perKg * kg;
     out.querySelector("[data-earn]").textContent = F.inr(total, 0);
-    out.querySelector("[data-earn-sub]").textContent =
-      `${calc.qtyKg.toLocaleString("en-IN")} kg × ${calc.outturn}% = ${F.num(cleanKg, 1)} kg clean ${calc.bean === "arabica" ? "Arabica" : "Robusta"} @ ${F.inr(effRate, 2)}/kg (futures ${F.inr(rate, 2)} + diff ${F.inr(calc.differential, 2)})`;
+    out.querySelector("[data-earn-sub]").textContent = kg > 0
+      ? `((${F.usd(usd)} + $${calc.differential.toLocaleString("en-IN")}) / 1000) × ₹${F.num(state.usdinr, 2)} × ${kg.toLocaleString("en-IN")} kg (${calc.mode === "qty" ? "quantity" : "outturn"}) · ${calc.bean === "arabica" ? "Arabica" : "Robusta"}`
+      : "Enter an outturn (kg) above, or pick a quantity";
   }
 
   function wireCalc() {
+    const outturn = document.getElementById("outturn");
     document.querySelectorAll("[data-qty]").forEach((chip) => {
       chip.addEventListener("click", () => {
         document.querySelectorAll("[data-qty]").forEach((c) => c.classList.remove("active"));
         chip.classList.add("active");
+        calc.mode = "qty";
         const custom = document.getElementById("qty-custom");
         if (chip.dataset.qty === "custom") { if (custom) { custom.style.display = "block"; custom.focus(); calc.qtyKg = Number(custom.value) || 0; } }
         else { if (custom) custom.style.display = "none"; calc.qtyKg = Number(chip.dataset.qty); }
@@ -374,7 +345,7 @@
       });
     });
     const custom = document.getElementById("qty-custom");
-    if (custom) custom.addEventListener("input", () => { calc.qtyKg = Number(custom.value) || 0; refreshCalc(); });
+    if (custom) custom.addEventListener("input", () => { calc.mode = "qty"; calc.qtyKg = Number(custom.value) || 0; refreshCalc(); });
     document.querySelectorAll("[data-bean]").forEach((chip) => {
       chip.addEventListener("click", () => {
         document.querySelectorAll("[data-bean]").forEach((c) => c.classList.remove("active"));
@@ -383,10 +354,16 @@
         refreshCalc();
       });
     });
-    const outturn = document.getElementById("outturn");
-    if (outturn) outturn.addEventListener("change", () => { calc.outturn = Number(outturn.value) || 28; refreshCalc(); });
+    // Outturn (yield in kg) — the primary input; using it clears any picked quantity.
+    if (outturn) outturn.addEventListener("input", () => {
+      calc.outturn = Number(outturn.value) || 0;
+      calc.mode = "outturn";
+      document.querySelectorAll("[data-qty]").forEach((c) => c.classList.remove("active"));
+      const cu = document.getElementById("qty-custom"); if (cu) cu.style.display = "none";
+      refreshCalc();
+    });
     const diffInput = document.getElementById("calc-diff");
-    if (diffInput) diffInput.addEventListener("input", () => { calc.diffAuto = false; calc.differential = Number(diffInput.value) || 0; refreshCalc(); });
+    if (diffInput) diffInput.addEventListener("input", () => { calc.differential = Number(diffInput.value) || 0; refreshCalc(); });
   }
 
   // Refresh only USD/INR (the sole live value on the cards; futures come from Admin).
