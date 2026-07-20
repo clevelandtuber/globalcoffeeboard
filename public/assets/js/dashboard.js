@@ -1,16 +1,25 @@
 /* ============================================================
    Global Coffee Board — Price Dashboard engine
-   Data priority:  live feed  ->  admin manual  ->  seed
+
+   Card values come from the SERVER (same on every device):
+     • London Robusta / NY Arabica  = Coffee Board SEPTEMBER futures
+     • India Robusta / Arabica Cherry = Coffee Board raw grade prices
+     • USD/INR = live FX
+   Priority for each:  admin entry (localStorage)  ->  Coffee Board  ->  seed.
+   (Yahoo was dropped — it was stale and made phone/laptop disagree.)
    ============================================================ */
 (function () {
   const C = GCB.config, F = GCB.fmt, conv = GCB.conv, store = GCB.store, K = GCB.KEYS;
 
   const state = {
-    robustaUsdTonne: null, robustaPrevTonne: null,
-    arabicaCentsLb: null, arabicaPrevCentsLb: null,
+    robustaUsdTonne: null,   // Sept futures $/tonne
+    arabicaCentsLb: null,    // Sept futures ¢/lb
     usdinr: null,
-    cbi: [],
-    source: {},        // per-field: "live" | "manual" | "seed"
+    cbi: [],                 // [{ grade, inr50kg, low, high }]
+    robCherry50: null,       // ₹/50kg
+    araCherry50: null,       // ₹/50kg
+    cbiDate: null,
+    source: {},              // per-field: "live" | "manual" | "seed"
     updated: null,
   };
 
@@ -24,260 +33,184 @@
     return inr;
   }
 
-  async function fetchYahoo(symbol) {
-    const target = C.yahooBase + encodeURIComponent(symbol) + "?interval=1d&range=5d";
-    let lastErr;
-    for (const proxy of C.corsProxies) {
-      try {
-        const url = proxy + encodeURIComponent(target);
-        const r = await fetch(url, { cache: "no-store" });
-        if (!r.ok) throw new Error("http " + r.status);
-        const j = await r.json();
-        const res = j?.chart?.result?.[0];
-        const meta = res?.meta;
-        const closes = (res?.indicators?.quote?.[0]?.close || []).filter((x) => x != null);
-        const price = meta?.regularMarketPrice ?? closes[closes.length - 1];
-        const prev = meta?.chartPreviousClose ?? meta?.previousClose ?? closes[closes.length - 2] ?? price;
-        if (price == null) throw new Error("no price");
-        return { price, prev };
-      } catch (e) { lastErr = e; }
-    }
-    throw lastErr || new Error("all proxies failed");
-  }
-
-  // Primary source: our Netlify function (server-side, reliable).
-  // Returns { arabica:{price,prev}|null, robusta:{price,prev}|null, usdinr:number|null }.
   async function fetchApi() {
     const r = await fetch(C.apiUrl, { cache: "no-store" });
     if (!r.ok) throw new Error("api http " + r.status);
     return await r.json();
   }
 
-  // Coffee Board of India daily report (grades + official futures).
-  // Returns { ok, date, grades:[{grade,inr50kg,low,high}], futures:{arabicaCentsLb,robustaUsdTonne} }.
+  // Coffee Board daily report: { ok, date, grades:[{grade,inr50kg,low,high}], futures:{arabicaCentsLb,robustaUsdTonne} }
   async function fetchCbi() {
     const r = await fetch(C.cbiUrl, { cache: "no-store" });
     if (!r.ok) throw new Error("cbi http " + r.status);
     return await r.json();
   }
 
+  // ₹/50kg for a bean's "Cherry" grade from the CBI grade list.
+  function cherryFrom(cbi, beanRe) {
+    const row = cbi.find((r) => beanRe.test(r.grade) && /cherry/i.test(r.grade));
+    return row ? row.inr50kg : null;
+  }
+
+  // Shared admin overrides from the server (same on every device).
+  // Falls back to this browser's localStorage only when the server is unreachable (e.g. local `astro dev`).
+  async function fetchOverrides() {
+    try {
+      const r = await fetch(C.overridesUrl, { cache: "no-store" });
+      if (r.ok) {
+        const o = await r.json();
+        if (o && Object.keys(o).length) return o;
+      }
+    } catch {}
+    return store.get(K.manual, null);
+  }
+
   /* ---------- assemble ---------- */
   async function load() {
-    const manual = store.get(K.manual, null);
+    const manual = await fetchOverrides();
     const seed = GCB.SEED;
 
-    // start from seed
-    Object.assign(state, {
-      robustaUsdTonne: seed.robustaUsdTonne, robustaPrevTonne: seed.robustaPrevTonne,
-      arabicaCentsLb: seed.arabicaCentsLb, arabicaPrevCentsLb: seed.arabicaPrevCentsLb,
-      usdinr: seed.usdinr, cbi: seed.cbi.slice(),
-    });
-    state.source = { robusta: "seed", arabica: "seed", fx: "seed", cbi: "seed" };
+    // 1) seed base
+    state.robustaUsdTonne = seed.robustaUsdTonne;
+    state.arabicaCentsLb = seed.arabicaCentsLb;
+    state.usdinr = seed.usdinr;
+    state.cbi = seed.cbi.map((g) => ({ ...g }));
+    state.robCherry50 = cherryFrom(state.cbi, /robusta/i);
+    state.araCherry50 = cherryFrom(state.cbi, /arabica/i);
+    state.cbiDate = null;
+    state.source = { robusta: "seed", arabica: "seed", fx: "seed", robCherry: "seed", araCherry: "seed", cbi: "seed" };
     state.updated = seed.updated;
 
-    render(); // paint immediately with seed
+    render();
 
-    // 1) Live overlay — USD/INR is always live; Arabica/Robusta live only as a
-    //    fallback for when you haven't entered them in Admin.
-    try {
-      const api = await fetchApi();
-      if (api) {
-        if (api.arabica?.price != null) {
-          state.arabicaCentsLb = api.arabica.price;
-          state.arabicaPrevCentsLb = api.arabica.prev ?? state.arabicaPrevCentsLb;
-          state.source.arabica = "live";
-        }
-        if (api.robusta?.price != null) {
-          state.robustaUsdTonne = api.robusta.price;
-          state.robustaPrevTonne = api.robusta.prev ?? state.robustaPrevTonne;
-          state.source.robusta = "live";
-        }
-        if (api.usdinr != null) { state.usdinr = api.usdinr; state.source.fx = "live"; }
-      }
-    } catch { /* fetcher unavailable (e.g. local `astro dev`) — fall back below */ }
+    // 2) live USD/INR
+    await refreshFxInto();
 
-    const jobs = [];
-    if (state.source.fx !== "live")
-      jobs.push(fetchFx().then((inr) => { state.usdinr = inr; state.source.fx = "live"; }).catch(() => {}));
-    if (state.source.arabica !== "live")
-      jobs.push(fetchYahoo(C.symbols.arabica).then((d) => { state.arabicaCentsLb = d.price; state.arabicaPrevCentsLb = d.prev; state.source.arabica = "live"; }).catch(() => {}));
-    if (state.source.robusta !== "live")
-      jobs.push(fetchYahoo(C.symbols.robusta).then((d) => { state.robustaUsdTonne = d.price; state.robustaPrevTonne = d.prev; state.source.robusta = "live"; }).catch(() => {}));
-    await Promise.allSettled(jobs);
-
-    const anyLive = state.source.fx === "live" || state.source.robusta === "live" || state.source.arabica === "live";
-    if (anyLive) state.updated = Date.now();
-
-    // 2) Admin overlay WINS for the two futures prices — these are what you
-    //    entered in /admin, and they drive the cards + calculator.
-    if (manual) {
-      if (manual.robustaUsdTonne) {
-        state.robustaUsdTonne = manual.robustaUsdTonne;
-        if (manual.robustaPrevTonne) state.robustaPrevTonne = manual.robustaPrevTonne;
-        state.source.robusta = "manual";
-      }
-      if (manual.arabicaCentsLb) {
-        state.arabicaCentsLb = manual.arabicaCentsLb;
-        if (manual.arabicaPrevCentsLb) state.arabicaPrevCentsLb = manual.arabicaPrevCentsLb;
-        state.source.arabica = "manual";
-      }
-      if (!anyLive && manual.updated) state.updated = manual.updated;
-    }
-
-    render(); // fast paint with prices + your admin values
-
-    // 3) Coffee Board of India daily report — official grade prices (the CBI
-    //    table) and official ICE futures (a better auto-source than Yahoo).
-    //    Your Admin entry still wins for the futures.
+    // 3) Coffee Board of India (server-side, identical on every device)
     try {
       const cbi = await fetchCbi();
       if (cbi && cbi.ok) {
         if (Array.isArray(cbi.grades) && cbi.grades.length) {
-          state.cbi = cbi.grades.map((g) => ({ grade: g.grade, inr50kg: g.inr50kg }));
+          state.cbi = cbi.grades.map((g) => ({ ...g }));
           state.source.cbi = "live";
           state.cbiDate = cbi.date || null;
+          const rc = cherryFrom(state.cbi, /robusta/i); if (rc != null) { state.robCherry50 = rc; state.source.robCherry = "live"; }
+          const ac = cherryFrom(state.cbi, /arabica/i); if (ac != null) { state.araCherry50 = ac; state.source.araCherry = "live"; }
         }
         if (cbi.futures) {
-          if (cbi.futures.arabicaCentsLb && !(manual && manual.arabicaCentsLb)) {
-            state.arabicaCentsLb = cbi.futures.arabicaCentsLb; state.source.arabica = "live";
-          }
-          if (cbi.futures.robustaUsdTonne && !(manual && manual.robustaUsdTonne)) {
-            state.robustaUsdTonne = cbi.futures.robustaUsdTonne; state.source.robusta = "live";
-          }
+          if (cbi.futures.robustaUsdTonne) { state.robustaUsdTonne = cbi.futures.robustaUsdTonne; state.source.robusta = "live"; }
+          if (cbi.futures.arabicaCentsLb) { state.arabicaCentsLb = cbi.futures.arabicaCentsLb; state.source.arabica = "live"; }
         }
-        if (!state.updated && cbi.updated) state.updated = cbi.updated;
-        render();
       }
-    } catch { /* gov site unavailable — keep sample/previous CBI data */ }
+    } catch { /* gov site unavailable — keep seed */ }
+
+    // 4) Admin overlay WINS
+    if (manual) {
+      if (manual.robustaUsdTonne) { state.robustaUsdTonne = manual.robustaUsdTonne; state.source.robusta = "manual"; }
+      if (manual.arabicaCentsLb) { state.arabicaCentsLb = manual.arabicaCentsLb; state.source.arabica = "manual"; }
+      if (manual.robCherry50) { state.robCherry50 = manual.robCherry50; state.source.robCherry = "manual"; }
+      if (manual.araCherry50) { state.araCherry50 = manual.araCherry50; state.source.araCherry = "manual"; }
+    }
 
     store.set(K.cache, { ...state });
+    render();
   }
 
-  /* ---------- derived ---------- */
-  function pctChange(now, prev) {
-    if (!prev || !now) return 0;
-    return ((now - prev) / prev) * 100;
-  }
-
-  // Average CBI price for a bean (matched by grade regex) -> { per50, perKg }.
-  function localAvg(beanRe) {
-    const rows = state.cbi.filter((r) => beanRe.test(r.grade));
-    if (!rows.length) return null;
-    const avg50 = rows.reduce((s, r) => s + (r.inr50kg || 0), 0) / rows.length;
-    return { per50: avg50, perKg: avg50 / 50 };
+  // Refresh only USD/INR (the sole live value; everything else is Admin/Coffee Board).
+  async function refreshFxInto() {
+    try { const api = await fetchApi(); if (api && api.usdinr != null) { state.usdinr = api.usdinr; state.source.fx = "live"; state.updated = Date.now(); return; } } catch {}
+    try { const inr = await fetchFx(); state.usdinr = inr; state.source.fx = "live"; state.updated = Date.now(); } catch {}
   }
 
   /* ---------- render ---------- */
   function srcBadge(key) {
     const s = state.source[key];
-    if (s === "live") return `<span class="src-badge">● live feed</span>`;
+    if (s === "live") return `<span class="src-badge">● Coffee Board</span>`;
     if (s === "manual") return `<span class="src-badge manual">✎ manual entry</span>`;
     return `<span class="src-badge">◦ sample</span>`;
   }
 
-  function chgTag(pct) {
-    const cls = pct > 0.05 ? "up" : pct < -0.05 ? "down" : "flat";
-    const arrow = pct > 0.05 ? "▲" : pct < -0.05 ? "▼" : "—";
-    return `<span class="chg ${cls}">${arrow} ${F.pct(pct)}</span>`;
-  }
-
   function render() {
-    const { usdinr, robustaUsdTonne, robustaPrevTonne, arabicaCentsLb, arabicaPrevCentsLb } = state;
-
-    const robInr = conv.robustaToInrKg(robustaUsdTonne, usdinr);
-    const araInr = conv.arabicaToInrKg(arabicaCentsLb, usdinr);
-    const robPct = pctChange(robustaUsdTonne, robustaPrevTonne);
-    const araPct = pctChange(arabicaCentsLb, arabicaPrevCentsLb);
+    const usdinr = state.usdinr;
+    const robInr = conv.robustaToInrKg(state.robustaUsdTonne, usdinr);
+    const araInr = conv.arabicaToInrKg(state.arabicaCentsLb, usdinr);
+    const robCherryKg = state.robCherry50 != null ? state.robCherry50 / 50 : null;
+    const araCherryKg = state.araCherry50 != null ? state.araCherry50 / 50 : null;
+    const unit = 'style="font-size:1rem;color:var(--text-dim)"';
 
     setHTML("card-robusta", `
-      <div class="label"><span class="dot" style="background:#b5762f"></span> London Robusta · futures</div>
-      <div class="primary">${F.usd(robustaUsdTonne)}<span style="font-size:1rem;color:var(--text-dim)"> US$/tonne</span></div>
+      <div class="label"><span class="dot" style="background:#b5762f"></span> London Robusta · Sept futures</div>
+      <div class="primary">${F.usd(state.robustaUsdTonne)}<span ${unit}> US$/tonne</span></div>
       <div class="secondary">≈ ${F.inr(robInr, 2)} / kg</div>
-      <div class="meta">${chgTag(robPct)} ${srcBadge("robusta")}</div>`);
+      <div class="meta"><span></span> ${srcBadge("robusta")}</div>`);
 
     setHTML("card-arabica", `
-      <div class="label"><span class="dot" style="background:#e0a458"></span> NY Arabica · futures</div>
-      <div class="primary">${F.num(arabicaCentsLb, 2)}<span style="font-size:1rem;color:var(--text-dim)"> US¢/lb</span></div>
+      <div class="label"><span class="dot" style="background:#e0a458"></span> NY Arabica · Sept futures</div>
+      <div class="primary">${F.num(state.arabicaCentsLb, 2)}<span ${unit}> US¢/lb</span></div>
       <div class="secondary">≈ ${F.inr(araInr, 2)} / kg</div>
-      <div class="meta">${chgTag(araPct)} ${srcBadge("arabica")}</div>`);
+      <div class="meta"><span></span> ${srcBadge("arabica")}</div>`);
 
     setHTML("card-fx", `
       <div class="label"><span class="dot" style="background:#4fbf8b"></span> USD / INR</div>
       <div class="primary">₹${F.num(usdinr, 2)}</div>
-      <div class="secondary">1 US Dollar</div>
+      <div class="secondary">1 US Dollar · live</div>
       <div class="meta"><span></span> ${srcBadge("fx")}</div>`);
 
-    const locRob = localAvg(/robusta/i);
-    const locAra = localAvg(/arabica/i);
-    const localCard = (title, a) => `
+    const cherryCard = (title, perKg, per50, key) => `
       <div class="label"><span class="dot" style="background:var(--latte)"></span> ${title}</div>
-      <div class="primary">${a ? F.inr(a.perKg, 2) : "—"}<span style="font-size:1rem;color:var(--text-dim)"> /kg</span></div>
-      <div class="secondary" style="font-size:.85rem;color:var(--text-dim)">${a ? F.inr(a.per50, 0) + " / 50 kg" : "Coffee Board grades"}</div>
-      <div class="meta"><span></span> ${srcBadge("cbi")}</div>`;
-    setHTML("card-local-robusta", localCard("India Robusta · avg", locRob));
-    setHTML("card-local-arabica", localCard("India Arabica · avg", locAra));
+      <div class="primary">${perKg != null ? F.inr(perKg, 2) : "—"}<span ${unit}> /kg</span></div>
+      <div class="secondary" style="font-size:.85rem;color:var(--text-dim)">${per50 != null ? F.inr(per50, 0) + " / 50 kg" : "—"}</div>
+      <div class="meta"><span></span> ${srcBadge(key)}</div>`;
+    setHTML("card-local-robusta", cherryCard("India Robusta Cherry", robCherryKg, state.robCherry50, "robCherry"));
+    setHTML("card-local-arabica", cherryCard("India Arabica Cherry", araCherryKg, state.araCherry50, "araCherry"));
 
-    const localRob = locRob ? locRob.perKg : null;
-    renderCbi();
-    renderVerdict(robPct, araPct, robInr, localRob);
-    renderChart();
+    renderRaw();
+    renderVerdict(robInr, robCherryKg);
     refreshCalc();
 
     const upd = document.getElementById("updated-at");
     if (upd) upd.textContent = state.updated ? F.when(state.updated) : "sample data";
+  }
 
-    const cd = document.getElementById("cbi-date");
-    if (cd) cd.textContent = state.cbiDate ? "Report: " + state.cbiDate : "";
-
-    const cbiBadge = document.getElementById("cbi-badge");
-    if (cbiBadge) {
+  // "Indian Raw Coffee Price" grid under the cards.
+  function renderRaw() {
+    const el = document.getElementById("raw-grid");
+    if (el) {
+      el.innerHTML = state.cbi.map((r) => {
+        const range = (r.low != null && r.high != null && r.low !== r.high)
+          ? `₹${F.num(r.low, 0)} – ${F.num(r.high, 0)}`
+          : F.inr(r.inr50kg, 0);
+        return `<div class="glass raw-card">
+            <div class="raw-grade">${r.grade}</div>
+            <div class="raw-price">${range}</div>
+            <div class="raw-unit">₹ / 50 kg · ≈ ${F.inr((r.inr50kg || 0) / 50, 0)}/kg</div>
+          </div>`;
+      }).join("");
+    }
+    const d = document.getElementById("raw-date");
+    if (d) d.textContent = state.cbiDate || "—";
+    const b = document.getElementById("cbi-badge");
+    if (b) {
       const live = state.source.cbi === "live";
-      cbiBadge.textContent = live ? "● official report" : "◦ sample data";
-      cbiBadge.style.color = live ? "var(--good)" : "var(--text-dim)";
+      b.textContent = live ? "● official report" : "◦ sample data";
+      b.style.color = live ? "var(--good)" : "var(--text-dim)";
     }
   }
 
-  function renderCbi() {
-    const body = document.getElementById("cbi-body");
-    if (!body) return;
-    body.innerHTML = state.cbi.map((r) => {
-      const perKg = (r.inr50kg || 0) / 50;
-      return `<tr><td>${r.grade}</td><td class="num">${F.inr(r.inr50kg)}</td><td class="num">${F.inr(perKg, 2)}</td></tr>`;
-    }).join("");
-  }
-
-
-  function renderVerdict(robPct, araPct, robInr, localRob) {
+  function renderVerdict(robInr, localRob) {
     const el = document.getElementById("verdict");
     if (!el) return;
-
-    // Signal scoring
     let score = 0;
     const reasons = [];
-    if (robPct > 0.3) { score++; reasons.push(`Robusta futures up ${F.pct(robPct)}`); }
-    else if (robPct < -0.3) { score--; reasons.push(`Robusta futures down ${F.pct(robPct)}`); }
-    if (araPct > 0.3) { score++; reasons.push(`Arabica firm ${F.pct(araPct)}`); }
-    else if (araPct < -0.3) { score--; reasons.push(`Arabica soft ${F.pct(araPct)}`); }
-
     if (localRob != null && robInr) {
       const diffPct = ((localRob - robInr) / robInr) * 100;
-      if (diffPct > 3) { score++; reasons.push("local premium over world parity"); }
-      else if (diffPct < -3) { score--; reasons.push("local discount to world parity"); }
+      if (diffPct > 3) { score++; reasons.push("local Cherry above world parity"); }
+      else if (diffPct < -3) { score--; reasons.push("local Cherry below world parity"); }
     }
-
-    // trend vs stored history
-    const hist = store.get(K.history, []);
-    if (hist.length >= 2 && localRob != null) {
-      const older = hist[hist.length - 2]?.localRob;
-      if (older && localRob > older * 1.005) { score++; reasons.push("local prices trending up"); }
-      else if (older && localRob < older * 0.995) { score--; reasons.push("local prices trending down"); }
-    }
-
     let cls, emoji, title, sub;
-    if (score >= 2) { cls = "good"; emoji = "🌱"; title = "Good day to sell"; sub = "Multiple signals favour selling today."; }
-    else if (score <= -2) { cls = "bad"; emoji = "⏳"; title = "Consider holding"; sub = "Signals are weak — you may get a better price later."; }
-    else { cls = "hold"; emoji = "⚖️"; title = "Neutral / your call"; sub = "Mixed signals. Weigh your cash needs and storage."; }
-
+    if (score >= 1) { cls = "good"; emoji = "🌱"; title = "Reasonable day to sell"; sub = "Local prices are firm versus the world benchmark."; }
+    else if (score <= -1) { cls = "bad"; emoji = "⏳"; title = "Consider holding"; sub = "Local prices trail the world benchmark — you may get more later."; }
+    else { cls = "hold"; emoji = "⚖️"; title = "Neutral / your call"; sub = "Prices are roughly in line — weigh your cash needs and storage."; }
     el.className = "verdict " + cls;
     el.innerHTML = `
       <div class="emoji">${emoji}</div>
@@ -288,30 +221,15 @@
       </div>`;
   }
 
-  function renderChart() {
-    const el = document.getElementById("cbi-chart");
-    if (!el) return;
-    const rows = state.cbi.slice(0, 6);
-    if (!rows.length) { el.innerHTML = ""; return; }
-    const max = Math.max(...rows.map((r) => r.inr50kg || 0)) || 1;
-    el.innerHTML = rows.map((r) => {
-      const h = Math.max(6, ((r.inr50kg || 0) / max) * 100);
-      const short = r.grade.replace(/\((.*?)\)/, "").replace(/Parchment/i, "Parch.").replace(/Robusta/i, "Rob").replace(/Arabica/i, "Ara").trim();
-      return `<div class="bar" style="height:${h}%"><span>${(r.inr50kg / 1000).toFixed(1)}k</span><small>${short}</small></div>`;
-    }).join("");
-  }
-
   /* ---------- earnings calculator ---------- */
   const calc = { bean: "robusta", differential: 250, outturn: 0, qtyKg: 0, mode: "outturn" };
 
-  // Selected bean's futures price expressed in US$/tonne (Robusta is already $/tonne;
-  // Arabica ¢/lb is converted: ¢/lb ÷ 100 × 2204.62 lb/tonne).
+  // Selected bean's futures price in US$/tonne (Robusta is $/tonne; Arabica ¢/lb → $/tonne).
   function tonnePrice() {
     if (calc.bean === "arabica") return (state.arabicaCentsLb || 0) * (GCB.LB_PER_TONNE / 100);
     return state.robustaUsdTonne || 0;
   }
 
-  // How many kg to value: the outturn (yield in kg) unless a fixed quantity was picked.
   function effectiveKg() {
     if (calc.mode === "qty") return calc.qtyKg || 0;
     return calc.outturn > 0 ? calc.outturn : 0;
@@ -322,7 +240,7 @@
     const out = document.getElementById("calc-out");
     if (!out) return;
     const usd = tonnePrice();
-    const perKg = ((usd + calc.differential) / 1000) * (state.usdinr || 0); // ₹/kg
+    const perKg = ((usd + calc.differential) / 1000) * (state.usdinr || 0);
     const kg = effectiveKg();
     const total = perKg * kg;
     out.querySelector("[data-earn]").textContent = F.inr(total, 0);
@@ -338,9 +256,9 @@
         document.querySelectorAll("[data-qty]").forEach((c) => c.classList.remove("active"));
         chip.classList.add("active");
         calc.mode = "qty";
-        const custom = document.getElementById("qty-custom");
-        if (chip.dataset.qty === "custom") { if (custom) { custom.style.display = "block"; custom.focus(); calc.qtyKg = Number(custom.value) || 0; } }
-        else { if (custom) custom.style.display = "none"; calc.qtyKg = Number(chip.dataset.qty); }
+        const cu = document.getElementById("qty-custom");
+        if (chip.dataset.qty === "custom") { if (cu) { cu.style.display = "block"; cu.focus(); calc.qtyKg = Number(cu.value) || 0; } }
+        else { if (cu) cu.style.display = "none"; calc.qtyKg = Number(chip.dataset.qty); }
         refreshCalc();
       });
     });
@@ -354,7 +272,6 @@
         refreshCalc();
       });
     });
-    // Outturn (yield in kg) — the primary input; using it clears any picked quantity.
     if (outturn) outturn.addEventListener("input", () => {
       calc.outturn = Number(outturn.value) || 0;
       calc.mode = "outturn";
@@ -366,18 +283,6 @@
     if (diffInput) diffInput.addEventListener("input", () => { calc.differential = Number(diffInput.value) || 0; refreshCalc(); });
   }
 
-  // Refresh only USD/INR (the sole live value on the cards; futures come from Admin).
-  async function refreshFx() {
-    try {
-      const api = await fetchApi();
-      if (api && api.usdinr != null) { state.usdinr = api.usdinr; state.source.fx = "live"; state.updated = Date.now(); render(); return; }
-    } catch {}
-    try {
-      const inr = await fetchFx();
-      state.usdinr = inr; state.source.fx = "live"; state.updated = Date.now(); render();
-    } catch {}
-  }
-
   function setHTML(id, html) { const el = document.getElementById(id); if (el) el.innerHTML = html; }
 
   /* ---------- boot ---------- */
@@ -385,7 +290,7 @@
     wireCalc();
     load();
     const btn = document.getElementById("refresh-btn");
-    if (btn) btn.addEventListener("click", () => { btn.classList.add("spin"); refreshFx().finally(() => btn.classList.remove("spin")); });
+    if (btn) btn.addEventListener("click", () => { btn.classList.add("spin"); refreshFxInto().then(render).finally(() => btn.classList.remove("spin")); });
     setInterval(load, C.refreshMs);
   });
 })();

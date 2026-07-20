@@ -42,6 +42,17 @@ import LiveMarket from '../components/LiveMarket.astro';
           <div class="glass price-card" id="card-local-arabica"></div>
         </div>
 
+        <div class="raw-head reveal">
+          <div>
+            <span class="eyebrow">Coffee Board of India</span>
+            <h3 class="raw-title">Indian Raw Coffee Price</h3>
+          </div>
+          <div class="raw-meta">
+            <span id="cbi-badge" class="src-badge"></span>
+            <span style="color:var(--text-dim);font-size:.85rem">As on <b id="raw-date" style="color:var(--text-muted)">—</b> · ₹ / 50 kg</span>
+          </div>
+        </div>
+        <div class="raw-grid" id="raw-grid"></div>
       </div>
     </section>
 
@@ -93,34 +104,6 @@ import LiveMarket from '../components/LiveMarket.astro';
               <div class="earn" data-earn>—</div>
               <div class="earn-sub" data-earn-sub>—</div>
             </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="cbi">
-      <div class="wrap">
-        <div class="section-head reveal">
-          <div class="eyebrow">Coffee Board of India</div>
-          <h2>Daily Coffee Market Report</h2>
-          <p>Official Indian farm-gate grade prices (₹), auto-updated from the <a style="color:var(--gold-2)" href="https://coffeeboard.gov.in/Market_Info.aspx" target="_blank" rel="noopener">Coffee Board of India daily report ↗</a>. <span id="cbi-date" style="color:var(--text-dim)"></span></p>
-        </div>
-        <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:24px;align-items:start" class="cbi-layout">
-          <div class="glass reveal" style="padding:14px 14px 6px">
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:0 4px 10px">
-              <span class="eyebrow">Farm-gate grades (Karnataka)</span>
-              <span id="cbi-badge" class="src-badge"></span>
-            </div>
-            <div class="table-wrap">
-              <table class="data">
-                <thead><tr><th>Grade</th><th style="text-align:right">₹ / 50 kg</th><th style="text-align:right">₹ / kg</th></tr></thead>
-                <tbody id="cbi-body"></tbody>
-              </table>
-            </div>
-          </div>
-          <div class="glass reveal" style="padding:24px 24px 40px">
-            <div class="eyebrow">Price by grade (₹/50kg)</div>
-            <div class="bars" id="cbi-chart" style="margin-top:26px"></div>
           </div>
         </div>
       </div>

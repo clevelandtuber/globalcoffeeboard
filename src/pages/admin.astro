@@ -21,32 +21,44 @@ import Layout from '../layouts/Layout.astro';
         <div id="admin-notice" class="notice info" style="display:none"></div>
 
         <div class="notice info">
-          <b>Where to read today's numbers:</b> use the live charts on the
-          <a style="color:var(--gold-2)" href="/#dashboard">dashboard</a> (or
-          <a style="color:var(--gold-2)" href="https://www.tradingview.com/symbols/ICEUS-KC1!/" target="_blank" rel="noopener">TradingView</a>).
-          Robusta is quoted in <b>US$ per tonne</b>; Arabica in <b>US cents per pound</b> (¢/lb).
+          <b>Leave any field blank</b> to use the automatic Coffee Board of India value for that card. Anything you enter here <b>overrides</b> the card. Robusta futures are in <b>US$ per tonne</b>, Arabica futures in <b>US cents per pound</b> (¢/lb), and the India Cherry prices in <b>₹ per 50 kg</b>.
         </div>
 
         <div class="glass" style="padding:26px;margin-bottom:22px">
-          <h3 style="font-family:var(--font-head);margin-bottom:4px">Coffee futures prices</h3>
-          <p style="color:var(--text-dim);font-size:.85rem;margin-bottom:16px">"Prev. close" is optional — it's only used to show the ▲/▼ change on the cards.</p>
+          <h3 style="font-family:var(--font-head);margin-bottom:4px">Futures prices</h3>
+          <p style="color:var(--text-dim);font-size:.85rem;margin-bottom:16px">Drive the "London Robusta" and "NY Arabica" cards (September contract).</p>
           <div class="admin-grid">
-            <div class="field"><label>London Robusta — futures (US$ / tonne)</label><input id="robusta" type="number" inputmode="decimal" placeholder="e.g. 3960" /></div>
-            <div class="field"><label>Robusta prev. close (US$ / tonne)</label><input id="robustaPrev" type="number" inputmode="decimal" placeholder="e.g. 3900" /></div>
+            <div class="field"><label>London Robusta — futures (US$ / tonne)</label><input id="robusta" type="number" inputmode="decimal" placeholder="e.g. 3877" /></div>
             <div class="field"><label>NY Arabica — futures (US ¢ / lb)</label><input id="arabica" type="number" inputmode="decimal" placeholder="e.g. 320" /></div>
-            <div class="field"><label>Arabica prev. close (¢ / lb)</label><input id="arabicaPrev" type="number" inputmode="decimal" placeholder="e.g. 312" /></div>
           </div>
+        </div>
+
+        <div class="glass" style="padding:26px;margin-bottom:22px">
+          <h3 style="font-family:var(--font-head);margin-bottom:4px">India Cherry prices (₹ / 50 kg)</h3>
+          <p style="color:var(--text-dim);font-size:.85rem;margin-bottom:16px">Drive the "India Robusta Cherry" and "India Arabica Cherry" cards.</p>
+          <div class="admin-grid">
+            <div class="field"><label>India Robusta Cherry (₹ / 50 kg)</label><input id="robCherry" type="number" inputmode="decimal" placeholder="e.g. 10500" /></div>
+            <div class="field"><label>India Arabica Cherry (₹ / 50 kg)</label><input id="araCherry" type="number" inputmode="decimal" placeholder="e.g. 14500" /></div>
+          </div>
+        </div>
+
+        <div class="glass" style="padding:20px 26px;margin-bottom:22px">
+          <div class="field" style="max-width:340px;margin-bottom:0">
+            <label>Admin key</label>
+            <input id="admin-key" type="password" placeholder="Enter your admin key to publish" autocomplete="current-password" />
+          </div>
+          <p style="color:var(--text-dim);font-size:.82rem;margin-top:8px">Required to save. It's the <b>ADMIN_KEY</b> you set in Netlify → Site settings → Environment variables. Saving publishes to <b>all devices &amp; visitors</b>.</p>
         </div>
 
         <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
           <button class="btn btn-primary" id="save-btn">💾 Save &amp; publish</button>
           <button class="btn" id="export-btn">⬇ Export JSON</button>
           <label class="btn" style="cursor:pointer">⬆ Import JSON<input id="import-file" type="file" accept="application/json" style="display:none" /></label>
-          <button class="btn btn-ghost" id="clear-btn" style="margin-left:auto;border-color:rgba(229,106,95,.4);color:var(--bad)">Clear manual data</button>
+          <button class="btn btn-ghost" id="clear-btn" style="margin-left:auto;border-color:rgba(229,106,95,.4);color:var(--bad)">Clear overrides</button>
         </div>
 
         <p style="color:var(--text-dim);font-size:.85rem;margin-top:18px">
-          Note: this is a client-side panel for a static site. Data lives in this browser only. Use <b>Export JSON</b> to back up or move entries to another device, and <b>Import JSON</b> to restore them.
+          Saved values are stored on the server and shown to everyone. Leave a field blank to use the automatic Coffee Board value for that card.
         </p>
       </div>
     </section>

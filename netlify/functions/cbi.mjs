@@ -82,16 +82,22 @@ function parseReport(text) {
     });
   }
 
-  // ---- official ICE front-month futures ----
-  // Text after the "US $ /Tonne ..." header looks like:
-  //   "... July - 2026 321.30 682.14 July - 2026 3867 175.40 372.39 Sept-2026 ..."
+  // ---- official ICE futures — SEPTEMBER contract ----
+  // Rows look like: "July - 2026 321.30 682.14 July - 2026 3867 ... Sept-2026 312.60 663.67 Sept-2026 3797 ..."
+  // We want the September row: Arabica ¢/lb (312.60) and Robusta $/tonne (3797).
   let futures = null;
-  const h = text.search(/US ?\$ ?\/ ?Tonne/i);
-  if (h >= 0) {
-    const seg = text.slice(h, h + 220);
-    const ara = (seg.match(/([0-9]{2,3}\.[0-9]{2})/) || [])[1];    // first ¢/lb decimal (Arabica)
-    const rob = (seg.match(/\b([34][0-9]{3})\b/) || [])[1];        // first $/tonne integer (Robusta)
-    futures = { arabicaCentsLb: ara ? +ara : null, robustaUsdTonne: rob ? +rob : null };
+  const sep = text.match(/Sept[-\s]*20\d{2}\s+([0-9]{2,3}\.[0-9]{2})[\s\S]*?Sept[-\s]*20\d{2}\s+([34][0-9]{3})\b/i);
+  if (sep) {
+    futures = { arabicaCentsLb: +sep[1], robustaUsdTonne: +sep[2], month: "September" };
+  } else {
+    // Fallback: first futures row after the "US $/Tonne" header.
+    const h = text.search(/US ?\$ ?\/ ?Tonne/i);
+    if (h >= 0) {
+      const seg = text.slice(h, h + 220);
+      const ara = (seg.match(/([0-9]{2,3}\.[0-9]{2})/) || [])[1];
+      const rob = (seg.match(/\b([34][0-9]{3})\b/) || [])[1];
+      futures = { arabicaCentsLb: ara ? +ara : null, robustaUsdTonne: rob ? +rob : null, month: "front" };
+    }
   }
 
   const d = text.match(/Daily Coffee Market Report,\s*(\w+day,?\s*\w+\s+\d{1,2},?\s*\d{4})/);

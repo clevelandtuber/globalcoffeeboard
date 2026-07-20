@@ -337,6 +337,18 @@ input:focus, select:focus { outline: none; border-color: var(--gold); background
 .reveal { opacity: 0; transform: translateY(26px); transition: opacity .7s, transform .7s; }
 .reveal.in { opacity: 1; transform: none; }
 
+/* ---------- Indian Raw Coffee Price ---------- */
+.raw-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin: 40px 0 16px; }
+.raw-title { font-family: var(--font-head); font-size: 1.5rem; margin-top: 4px; }
+.raw-meta { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.raw-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+.raw-card { padding: 20px 22px; position: relative; overflow: hidden; transition: transform .2s, box-shadow .2s; }
+.raw-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--gold-2), transparent); }
+.raw-card:hover { transform: translateY(-3px); box-shadow: var(--shadow), var(--shadow-gold); }
+.raw-grade { color: var(--text-muted); font-size: 0.9rem; font-weight: 600; }
+.raw-price { font-family: var(--font-head); font-size: 1.55rem; font-weight: 800; color: var(--gold-2); margin: 6px 0 2px; }
+.raw-unit { color: var(--text-dim); font-size: 0.78rem; }
+
 /* Refresh spin */
 @keyframes spin { to { transform: rotate(360deg); } }
 #refresh-btn.spin { pointer-events: none; opacity: 0.75; animation: spin 0.9s linear infinite; }

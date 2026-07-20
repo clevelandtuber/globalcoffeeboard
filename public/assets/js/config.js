@@ -17,6 +17,8 @@ GCB.config = {
   apiUrl: "/api/prices",
   // Coffee Board of India daily report scraper (Netlify Function).
   cbiUrl: "/api/cbi",
+  // Shared admin overrides store (Netlify Function + Blobs) — same on every device.
+  overridesUrl: "/api/overrides",
   // Yahoo chart endpoint (wrapped in a CORS proxy for browser use — fallback path)
   yahooBase: "https://query1.finance.yahoo.com/v8/finance/chart/",
   corsProxies: [
