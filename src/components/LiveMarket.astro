@@ -25,7 +25,7 @@
     </p>
 
     <!-- Ticker strip -->
-    <div class="glass" style="padding:6px 8px;margin-bottom:16px;min-height:46px">
+    <div class="glass tv-ticker">
       <div id="tv-ticker" class="tradingview-widget-container"></div>
     </div>
 
@@ -44,6 +44,11 @@
 </section>
 
 <style>
+  /* Ticker: single-line scrolling tape, never clipped */
+  .tv-ticker { padding: 4px 8px; margin-bottom: 16px; overflow: hidden; }
+  .tv-ticker #tv-ticker,
+  .tv-ticker .tradingview-widget-container__widget { width: 100%; }
+
   .tv-charts { display: grid; grid-template-columns: 1fr; gap: 24px; }
   .tv-chart { height: 560px; }
   .tv-chart .tradingview-widget-container__widget { height: 100%; }
@@ -75,7 +80,7 @@
       colorTheme: "dark",
       isTransparent: true,
       showSymbolLogo: true,
-      displayMode: "adaptive",
+      displayMode: "compact",
       locale: "en"
     });
 

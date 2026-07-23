@@ -1,0 +1,137 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+// Reference data (sourced from widely-accepted specialty-coffee guidance, e.g. SCA golden-cup ~1:18).
+const methods = [
+  { m: 'Espresso',            ratio: '1:2',      grind: 'Fine',          temp: '90–96°C', time: '25–32 s',   note: 'Pressure brewed; ~18 g in, ~36 g out.' },
+  { m: 'Moka pot',            ratio: '~1:10',    grind: 'Fine–medium',   temp: 'Off boil', time: '4–5 min',   note: 'Stovetop; take off heat as it gurgles.' },
+  { m: 'AeroPress',           ratio: '1:13–1:16',grind: 'Medium-fine',   temp: '80–90°C', time: '1–2 min',   note: 'Forgiving; lower temp softens acidity.' },
+  { m: 'Pour-over (V60)',     ratio: '1:16',     grind: 'Medium-fine',   temp: '92–96°C', time: '2:30–3:30', note: 'Bloom 30 s, then pour in stages.' },
+  { m: 'Chemex',             ratio: '1:16–1:17', grind: 'Medium-coarse', temp: '92–96°C', time: '3:30–4:30', note: 'Thick filter = clean, bright cup.' },
+  { m: 'French press',        ratio: '1:15',     grind: 'Coarse',        temp: '93–96°C', time: '4 min',     note: 'Full immersion; press slowly.' },
+  { m: 'South Indian filter', ratio: '~1:5 decoction', grind: 'Fine',    temp: '~95°C',   time: '15–20 min', note: 'Strong decoction, served with hot milk.' },
+  { m: 'Cold brew (concentrate)', ratio: '1:8',  grind: 'Coarse',        temp: 'Room / cold', time: '12–18 h', note: 'Dilute 1:1 with water or milk to serve.' },
+];
+---
+<Layout
+  title="Coffee Calculators & Brewing Ratios — Global Coffee Board"
+  description="Free coffee brew-ratio calculator and espresso dial-in tool, plus a clear coffee-to-water ratio chart for pour-over, French press, AeroPress, Chemex, moka pot, cold brew and South Indian filter coffee."
+  active="brewing"
+>
+  <header class="hero" style="padding:70px 0 24px">
+    <div class="wrap">
+      <div class="eyebrow">Brew better coffee</div>
+      <h1 style="font-size:clamp(2.2rem,5vw,3.6rem)">Coffee <span class="grad">calculators</span> &amp; brewing ratios</h1>
+      <p class="lead">Dial in any brew method with the right coffee-to-water ratio. Use the calculators below, then keep the ratio chart handy for pour-over, French press, espresso and more.</p>
+    </div>
+  </header>
+
+  <main>
+    <!-- CALCULATORS -->
+    <section class="section" id="calculators" style="padding-top:16px">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <div class="eyebrow">Coffee Calculators</div>
+          <h2>Get the measurements right</h2>
+          <p>Weighing beats scooping. Enter your numbers and brew with confidence.</p>
+        </div>
+
+        <div class="tool-grid reveal">
+          <!-- Brew ratio -->
+          <div class="glass tool">
+            <h3>Brew-ratio calculator</h3>
+            <div class="tool-sub">Pick a method and how much water you'll use — get the coffee dose.</div>
+            <div class="field">
+              <label>Brew method</label>
+              <select id="bw-method">
+                <option value="16" selected>Pour-over / drip (1:16)</option>
+                <option value="17">Chemex (1:17)</option>
+                <option value="15">French press (1:15)</option>
+                <option value="15">AeroPress (1:15)</option>
+                <option value="10">Moka pot (1:10)</option>
+                <option value="8">Cold brew concentrate (1:8)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Water (grams ≈ ml)</label>
+              <input id="bw-water" type="number" inputmode="numeric" value="500" />
+            </div>
+            <div class="field">
+              <label>Strength</label>
+              <select id="bw-strength">
+                <option value="1">Lighter</option>
+                <option value="0" selected>Balanced</option>
+                <option value="-1">Stronger</option>
+              </select>
+            </div>
+            <div class="tool-out">
+              <div class="big"><span id="bw-coffee">—</span></div>
+              <div class="small" id="bw-tbsp"></div>
+              <div class="small">Ratio <b id="bw-ratio" style="color:var(--latte)">1 : 16</b></div>
+            </div>
+          </div>
+
+          <!-- Espresso -->
+          <div class="glass tool">
+            <h3>Espresso dial-in</h3>
+            <div class="tool-sub">Enter your dose and shot yield to see the brew ratio.</div>
+            <div class="field">
+              <label>Dose in (g of dry grounds)</label>
+              <input id="es-dose" type="number" inputmode="decimal" step="0.1" value="18" />
+            </div>
+            <div class="field">
+              <label>Yield out (g of espresso)</label>
+              <input id="es-yield" type="number" inputmode="decimal" step="0.1" value="36" />
+            </div>
+            <div class="tool-out">
+              <div class="big" id="es-ratio">1 : 2.00</div>
+              <div class="small" id="es-verdict"></div>
+            </div>
+            <p style="color:var(--text-dim);font-size:.8rem;margin-top:12px">Tip: aim for a ~25–32 s shot. Too fast = grind finer; too slow = grind coarser.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BREWING & RATIOS -->
+    <section class="section" id="ratios" style="padding-top:0">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <div class="eyebrow">Brewing &amp; Ratios</div>
+          <h2>The ratio chart</h2>
+          <p>A quick reference for coffee-to-water ratio, grind, water temperature and brew time by method.</p>
+        </div>
+        <div class="glass reveal" style="padding:8px">
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th>Method</th><th>Ratio</th><th>Grind</th><th>Water temp</th><th>Time</th><th>Notes</th></tr></thead>
+              <tbody>
+                {methods.map((r) => (
+                  <tr>
+                    <td><b>{r.m}</b></td><td>{r.ratio}</td><td>{r.grind}</td><td>{r.temp}</td><td>{r.time}</td>
+                    <td style="color:var(--text-muted)">{r.note}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="article" style="margin-top:34px">
+          <div class="callout"><b>The golden ratio.</b> A widely used starting point is roughly <b>1 gram of coffee to 16–18 grams of water</b> (the Specialty Coffee Association's "golden cup" sits near 55 g of coffee per litre). Go lower (1:15) for a bolder cup, higher (1:17–1:18) for a lighter, tea-like brew.</div>
+          <h2>How to use ratios</h2>
+          <ul>
+            <li><b>Weigh, don't scoop.</b> Beans vary in density, so a scale (0.1 g for espresso, 1 g for filter) is the single biggest upgrade to consistency.</li>
+            <li><b>Grind to the method.</b> Finer for faster/pressurised brews (espresso, moka), coarser for long immersions (French press, cold brew).</li>
+            <li><b>Mind the water.</b> Just off the boil (92–96°C) for most filter methods; cooler (80–90°C) tames acidity in an AeroPress.</li>
+            <li><b>Adjust one thing at a time.</b> Bitter or harsh? Coarsen the grind or shorten the brew. Sour or thin? Grind finer or brew a touch longer.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Fragment slot="scripts">
+    <script is:inline src="/assets/js/brewing.js"></script>
+  </Fragment>
+</Layout>

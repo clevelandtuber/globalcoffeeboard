@@ -5,10 +5,13 @@ node_modules/
 dist/
 .astro/
 
+# agent tooling — local only, not part of the website
+.claude/
+.agents/
+.impeccable/
+
 # system / editor
 .DS_Store
-.claude/*
-!.claude/skills
 scratchpad/
 *.log
 
@@ -16,6 +19,6 @@ scratchpad/
 .env
 .env.production
 
-# Tailwind docs snapshot — source-available upstream content, do not redistribute
-**/tailwind-4-docs/references/docs/
-**/tailwind-4-docs/references/docs-index.tsx
+# more agent tooling
+.codex/
+skills-lock.json

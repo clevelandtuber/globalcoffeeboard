@@ -1,0 +1,128 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+// One data source powers both the flip cards and the comparison table.
+const origins = [
+  { flag: '🇪🇹', name: 'Ethiopia',   desc: 'Floral & fruit-forward', region: 'Yirgacheffe · Sidamo · Guji', notes: 'Jasmine, bergamot, blueberry, citrus', alt: '1,500–2,200 m', proc: 'Washed & Natural', body: 'Light–Medium', acid: 'Bright', brew: 'Pour-over' },
+  { flag: '🇰🇪', name: 'Kenya',      desc: 'Bold & juicy',           region: 'Nyeri · Kirinyaga · Embu',   notes: 'Blackcurrant, tomato, grapefruit', alt: '1,400–2,100 m', proc: 'Washed', body: 'Full', acid: 'High', brew: 'Pour-over' },
+  { flag: '🇨🇴', name: 'Colombia',   desc: 'Balanced & sweet',        region: 'Huila · Nariño · Antioquia',  notes: 'Caramel, red apple, nutty', alt: '1,200–2,000 m', proc: 'Washed', body: 'Medium', acid: 'Medium-bright', brew: 'Any / drip' },
+  { flag: '🇧🇷', name: 'Brazil',     desc: 'Chocolatey & smooth',     region: 'Cerrado · Sul de Minas',      notes: 'Cocoa, peanut, caramel, low acidity', alt: '800–1,300 m', proc: 'Natural / pulped natural', body: 'Heavy', acid: 'Low', brew: 'Espresso' },
+  { flag: '🇬🇹', name: 'Guatemala',  desc: 'Rich & spicy',            region: 'Antigua · Huehuetenango',     notes: 'Cocoa, baking spice, orange', alt: '1,300–2,000 m', proc: 'Washed', body: 'Medium-full', acid: 'Medium', brew: 'Pour-over / espresso' },
+  { flag: '🇨🇷', name: 'Costa Rica', desc: 'Clean & honeyed',         region: 'Tarrazú · West Valley',       notes: 'Brown sugar, citrus, honey', alt: '1,200–1,900 m', proc: 'Washed & Honey', body: 'Medium', acid: 'Bright', brew: 'Pour-over' },
+  { flag: '🇮🇩', name: 'Sumatra',    desc: 'Earthy & syrupy',         region: 'Aceh · Lintong (Indonesia)',  notes: 'Cedar, herbal, dark chocolate', alt: '900–1,500 m', proc: 'Wet-hulled (Giling Basah)', body: 'Heavy', acid: 'Low', brew: 'French press' },
+  { flag: '🇵🇪', name: 'Peru',       desc: 'Mild & mellow',           region: 'Cajamarca · Cusco · Puno',    notes: 'Milk chocolate, almond, gentle', alt: '1,200–1,900 m', proc: 'Washed', body: 'Medium', acid: 'Mild', brew: 'Drip / filter' },
+  { flag: '🇭🇳', name: 'Honduras',   desc: 'Sweet & balanced',        region: 'Copán · Marcala · Montecillos', notes: 'Caramel, stone fruit, cocoa', alt: '1,000–1,700 m', proc: 'Washed', body: 'Medium', acid: 'Medium', brew: 'Any / drip' },
+  { flag: '🇾🇪', name: 'Yemen',      desc: 'Wild & winey',            region: 'Haraz · Bani Matar',          notes: 'Dried fruit, spice, dark chocolate', alt: '1,500–2,200 m', proc: 'Natural', body: 'Full', acid: 'Medium', brew: 'Espresso / cezve' },
+  { flag: '🇲🇽', name: 'Mexico',     desc: 'Light & nutty',           region: 'Chiapas · Oaxaca · Veracruz', notes: 'Hazelnut, milk chocolate, mild', alt: '900–1,700 m', proc: 'Washed', body: 'Light-medium', acid: 'Mild', brew: 'Drip / filter' },
+  { flag: '🇮🇳', name: 'India',      desc: 'Spiced & shade-grown',    region: 'Coorg · Chikmagalur · Nilgiris', notes: 'Spice, dark chocolate, nuts; Monsooned Malabar is mellow & earthy', alt: '700–1,600 m', proc: 'Washed, Natural & Monsooned', body: 'Medium-full', acid: 'Low–Medium', brew: 'Espresso / South-Indian filter' },
+  { flag: '🇻🇳', name: 'Vietnam',    desc: 'Bold & intense',          region: 'Đắk Lắk · Lâm Đồng (Da Lat)', notes: 'Dark chocolate, roasted nut, heavy; high-caffeine Robusta', alt: '500–1,500 m', proc: 'Natural (Robusta); washed Arabica in Da Lat', body: 'Heavy', acid: 'Low', brew: 'Phin filter / espresso' },
+];
+---
+<Layout
+  title="Single-Origin Coffee: Origin Explorer & Flavor Guide — Global Coffee Board"
+  description="What single-origin coffee means and how each country tastes. Explore an interactive origin map — Ethiopia, Colombia, Brazil, Kenya, India, Vietnam and more — with flavor notes, altitude and processing, plus a table of why origin shapes flavor."
+  active="origins"
+>
+  <header class="hero" style="padding:70px 0 24px">
+    <div class="wrap">
+      <div class="eyebrow">Single-origin coffee</div>
+      <h1 style="font-size:clamp(2.2rem,5vw,3.6rem)">Where your coffee <span class="grad">comes from</span></h1>
+      <p class="lead">Single-origin means coffee traced to one place — a country, region or even a single farm — instead of a blend. That traceability lets the origin's own character shine. Flip a card to explore.</p>
+    </div>
+  </header>
+
+  <main>
+    <section class="section" style="padding-top:8px">
+      <div class="wrap article" style="max-width:820px">
+        <h2 style="margin-top:0">What is single-origin coffee?</h2>
+        <p>A <b>blend</b> mixes beans from several places for a consistent, repeatable taste. A <b>single-origin</b> coffee comes from one origin, so what you taste is shaped by that place — its altitude, soil, climate, coffee variety and how the cherries were processed. It's the difference between a house blend that tastes the same all year and a Yirgacheffe that tastes unmistakably of Ethiopia.</p>
+        <div class="callout">Single-origin isn't automatically "better" than a blend — but it's more <b>transparent</b> and expressive, and it's the best way to learn how geography translates into flavor.</div>
+      </div>
+    </section>
+
+    <!-- ORIGIN EXPLORER -->
+    <section class="section" id="explorer" style="padding-top:8px">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <div class="eyebrow">Coffee Origin Explorer</div>
+          <h2>Tap a card to flip it</h2>
+          <p>Front: the origin at a glance. Back: tasting notes, altitude, processing, body &amp; acidity.</p>
+        </div>
+        <div class="flip-grid reveal">
+          {origins.map((o) => (
+            <div class="flip-card">
+              <div class="flip-inner">
+                <div class="flip-face flip-front">
+                  <div class="o-flag">{o.flag}</div>
+                  <div>
+                    <div class="o-name">{o.name}</div>
+                    <div class="o-desc">{o.desc}</div>
+                    <div class="o-region">{o.region}</div>
+                  </div>
+                  <div class="o-hint">Tap to flip ↻</div>
+                </div>
+                <div class="flip-face flip-back">
+                  <div class="o-notes">{o.flag} {o.name}<br />{o.notes}</div>
+                  <dl>
+                    <dt>Altitude</dt><dd>{o.alt}</dd>
+                    <dt>Process</dt><dd>{o.proc}</dd>
+                    <dt>Body</dt><dd>{o.body}</dd>
+                    <dt>Acidity</dt><dd>{o.acid}</dd>
+                    <dt>Best brew</dt><dd>{o.brew}</dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- WHY ORIGIN MATTERS -->
+    <section class="section" id="why" style="padding-top:0">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <div class="eyebrow">Why origin matters for flavor</div>
+          <h2>Geography in the cup</h2>
+          <p>Altitude, climate, variety and processing combine into a "terroir" you can taste. Here's the quick comparison.</p>
+        </div>
+        <div class="glass reveal" style="padding:8px">
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th>Origin</th><th>Flavor character</th><th>Body</th><th>Acidity</th><th>Best brew</th></tr></thead>
+              <tbody>
+                {origins.map((o) => (
+                  <tr>
+                    <td><b>{o.flag} {o.name}</b></td>
+                    <td style="color:var(--text-muted)">{o.notes}</td>
+                    <td>{o.body}</td>
+                    <td>{o.acid}</td>
+                    <td>{o.brew}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="article" style="margin-top:32px">
+          <h2>The five factors behind origin flavor</h2>
+          <ul>
+            <li><b>Altitude.</b> Higher, cooler slopes ripen cherries slowly, building denser beans with more sugars and brighter acidity.</li>
+            <li><b>Climate &amp; soil.</b> Rainfall, temperature and volcanic or mineral-rich soils shape sweetness and complexity.</li>
+            <li><b>Variety.</b> Genetics matter — Kenya's SL28, Ethiopia's heirlooms and Typica/Bourbon lines each carry a signature.</li>
+            <li><b>Processing.</b> Washed = clean and bright; natural = fruity and heavy; honey and wet-hulled sit in between and add their own stamp.</li>
+            <li><b>Harvest &amp; handling.</b> Careful picking of only ripe cherries and good drying preserve the flavor the land created.</li>
+          </ul>
+          <div style="text-align:center;margin-top:28px">
+            <a href="/grades" class="btn btn-primary">See how origins are graded &amp; priced →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Fragment slot="scripts">
+    <script is:inline src="/assets/js/brewing.js"></script>
+  </Fragment>
+</Layout>

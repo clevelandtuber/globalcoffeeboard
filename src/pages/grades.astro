@@ -1,0 +1,120 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const grades = [
+  { origin: '🇮🇳 India',          system: 'Bean size + preparation', grades: 'Plantation AAA / AA / A / PB (washed Arabica); Arabica Cherry (natural); Robusta Parchment & Cherry; premium marks: Kaapi Royale, Monsooned Malabar AA', bench: 'Robusta → London · Arabica → NY "C"' },
+  { origin: '🇧🇷 Brazil',         system: 'Defects + screen + cup', grades: 'NY 2–6 (by defect count); screen 13–19; cup "Strictly Soft" → "Rio"; e.g. Santos NY 2, 17/18', bench: 'NY "C"' },
+  { origin: '🇨🇴 Colombia',       system: 'Screen size', grades: 'Supremo (screen 17–18), Excelso (14–16)', bench: 'NY "C"' },
+  { origin: '🇪🇹 Ethiopia',       system: 'Defect grade (ECX)', grades: 'Grade 1–9; specialty = Grade 1–2 washed, 1–3 natural', bench: 'NY "C"' },
+  { origin: '🇰🇪 Kenya',          system: 'Bean size', grades: 'AA, AB, PB (peaberry), C, E, TT / T', bench: 'NY "C"' },
+  { origin: '🇬🇹 Guatemala',      system: 'Altitude / bean hardness', grades: 'SHB (Strictly Hard Bean, >1,350 m), HB, SH…', bench: 'NY "C"' },
+  { origin: '🇨🇷 Costa Rica',     system: 'Altitude', grades: 'SHB, GHB, HB (by growing elevation)', bench: 'NY "C"' },
+  { origin: '🇮🇩 Sumatra (Indonesia)', system: 'Defect count', grades: 'Grade 1 (≤11 defects); wet-hulled "Giling Basah"', bench: 'NY "C" · Robusta → London' },
+  { origin: '🇻🇳 Vietnam',        system: 'Defects + screen + moisture', grades: 'Robusta Grade 1 & 2 (screen 13–18); growing specialty Arabica (Da Lat)', bench: 'London Robusta' },
+];
+
+const diffs = [
+  { o: '🇰🇪 Kenya AA',                    b: 'NY "C"',        pos: 'High premium',          cls: 'up',   why: 'SL28/34 varieties, bright complex cups, limited supply' },
+  { o: '🇪🇹 Ethiopia washed (G1–2)',      b: 'NY "C"',        pos: 'Premium',               cls: 'up',   why: 'Floral clarity, traceable lots, strong specialty demand' },
+  { o: '🇨🇴 Colombia Supremo',            b: 'NY "C"',        pos: 'Premium',               cls: 'up',   why: 'Consistent washed quality, year-round availability' },
+  { o: '🇨🇷 Costa Rica SHB',              b: 'NY "C"',        pos: 'Premium',               cls: 'up',   why: 'Clean high-grown honey & washed micro-lots' },
+  { o: '🇬🇹 Guatemala SHB',               b: 'NY "C"',        pos: 'Modest premium',        cls: 'up',   why: 'High-altitude density, balanced, dependable' },
+  { o: '🇮🇳 India Robusta (Kaapi Royale)', b: 'London Robusta', pos: 'Premium',              cls: 'up',   why: 'World-renowned washed Robusta, prized for espresso' },
+  { o: '🇮🇳 India Plantation Arabica',    b: 'NY "C"',        pos: 'Small premium / near',  cls: 'flat', why: 'Shade-grown & mild; Monsooned Malabar sells on style' },
+  { o: '🇧🇷 Brazil natural (Santos)',     b: 'NY "C"',        pos: 'Near benchmark',        cls: 'flat', why: 'High volume, blend base, low-acid profile' },
+  { o: '🇻🇳 Vietnam Robusta G2',          b: 'London Robusta', pos: 'Discount → small premium', cls: 'down', why: 'Volume Robusta; certified/specialty lots earn more' },
+];
+---
+<Layout
+  title="Coffee Grades & Differentials by Region — Global Coffee Board"
+  description="How coffee is graded around the world — India, Brazil, Colombia, Ethiopia, Kenya, Vietnam and more — plus how origin differentials (premiums and discounts over the ICE benchmark) work and what moves them."
+  active="grades"
+>
+  <header class="hero" style="padding:70px 0 24px">
+    <div class="wrap">
+      <div class="eyebrow">Green coffee, decoded</div>
+      <h1 style="font-size:clamp(2.2rem,5vw,3.6rem)">Coffee <span class="grad">grades</span> &amp; differentials</h1>
+      <p class="lead">Every origin grades its coffee differently — by bean size, altitude, defects or cup quality. Here's how the major systems work, and how each origin's differential (premium or discount over the world benchmark) is set.</p>
+    </div>
+  </header>
+
+  <main>
+    <!-- GRADES BY REGION -->
+    <section class="section" id="grades" style="padding-top:16px">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <div class="eyebrow">Grades by region</div>
+          <h2>How coffee is graded around the world</h2>
+          <p>Grading tells buyers what to expect in the bag — size, density, defects and cup. The label differs by country.</p>
+        </div>
+        <div class="glass reveal" style="padding:8px">
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th>Origin</th><th>Graded by</th><th>Common grades</th><th>Priced against</th></tr></thead>
+              <tbody>
+                {grades.map((g) => (
+                  <tr>
+                    <td><b>{g.origin}</b></td>
+                    <td style="color:var(--text-muted)">{g.system}</td>
+                    <td>{g.grades}</td>
+                    <td style="color:var(--text-muted)">{g.bench}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="article" style="margin-top:32px">
+          <h2>The four ways coffee is graded</h2>
+          <ul>
+            <li><b>Bean size (screen).</b> Beans are sieved over screens measured in ⁄64 inch. Bigger, denser beans (Colombia Supremo, Kenya AA) usually command more.</li>
+            <li><b>Altitude / hardness.</b> Central American origins grade by elevation — higher-grown beans are denser and score better (Guatemala &amp; Costa Rica <b>SHB</b> = Strictly Hard Bean).</li>
+            <li><b>Defect count.</b> Brazil, Ethiopia, Indonesia and Vietnam count defects in a sample; fewer defects = a higher grade (Ethiopia Grade 1, Sumatra Grade 1, Brazil NY 2).</li>
+            <li><b>Cup quality.</b> Above ~80 points on the SCA scale, coffee is "specialty" — the grade that increasingly drives price at the top of the market.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- DIFFERENTIALS -->
+    <section class="section" id="differentials" style="padding-top:0">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <div class="eyebrow">Region-wise differential</div>
+          <h2>Premiums &amp; discounts by origin</h2>
+          <p>A "differential" is the premium (+) or discount (−) an origin trades at versus the world benchmark — the ICE New York "C" for Arabica, ICE London for Robusta.</p>
+        </div>
+        <div class="glass reveal" style="padding:8px">
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th>Origin</th><th>Benchmark</th><th>Typical position</th><th>What drives it</th></tr></thead>
+              <tbody>
+                {diffs.map((d) => (
+                  <tr>
+                    <td><b>{d.o}</b></td>
+                    <td style="color:var(--text-muted)">{d.b}</td>
+                    <td><span class={"chg " + d.cls}>{d.pos}</span></td>
+                    <td style="color:var(--text-muted)">{d.why}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="article" style="margin-top:32px">
+          <div class="callout"><b>Indicative, not live quotes.</b> Differentials move constantly with crop size, currency, freight and demand — and 2026 has been especially volatile, with Brazilian and Colombian differentials spiking on tight supply. Treat the positions above as the typical <i>relationship</i> to the benchmark, not a fixed number. For live futures, see the <a style="color:var(--gold-2)" href="/#dashboard">dashboard</a>.</div>
+          <h2>What moves a differential</h2>
+          <ul>
+            <li><b>Quality &amp; grade.</b> Higher cup scores and cleaner grades earn bigger premiums.</li>
+            <li><b>Supply &amp; weather.</b> Frost, drought or heavy rain at origin tightens supply and lifts differentials.</li>
+            <li><b>Currency.</b> A weaker producer-currency (e.g. the Brazilian real) can change how much growers accept in dollar terms.</li>
+            <li><b>Logistics.</b> Freight costs, container availability and shipping distance all feed into the delivered premium.</li>
+            <li><b>Certification &amp; traceability.</b> Organic, Fairtrade and fully-traceable micro-lots typically carry an extra premium.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+</Layout>
