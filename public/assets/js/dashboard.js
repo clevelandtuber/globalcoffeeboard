@@ -203,7 +203,7 @@
         return `<div class="glass raw-card">
             <div class="raw-grade">${r.grade}</div>
             <div class="raw-price">${range}</div>
-            <div class="raw-unit">₹ / 50 kg · ≈ ${F.inr((r.inr50kg || 0) / 50, 0)}/kg</div>
+            <div class="raw-unit">₹ / 50 kg</div>
           </div>`;
       }).join("");
     }
