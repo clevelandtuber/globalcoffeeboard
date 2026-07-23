@@ -15,10 +15,12 @@ const {
 } = Astro.props;
 
 const nav = [
-  { href: '/',              label: 'Dashboard',  key: 'dashboard' },
-  { href: '/knowledge',     label: 'Knowledge',  key: 'knowledge' },
-  { href: '/#calculator',   label: 'Calculator', key: 'calculator' },
-  { href: '/admin',         label: 'Admin',      key: 'admin' },
+  { href: '/',              label: 'Dashboard', key: 'dashboard' },
+  { href: '/single-origin', label: 'Origins',   key: 'origins' },
+  { href: '/brewing',       label: 'Brewing',   key: 'brewing' },
+  { href: '/grades',        label: 'Grades',    key: 'grades' },
+  { href: '/knowledge',     label: 'Knowledge', key: 'knowledge' },
+  { href: '/admin',         label: 'Admin',     key: 'admin' },
 ];
 const year = new Date().getFullYear();
 ---
@@ -42,8 +44,12 @@ const year = new Date().getFullYear();
     />
   </head>
   <body class="antialiased">
-    <div class="bg-ambient"></div>
-    <canvas id="bean-canvas"></canvas>
+    <div class="bg-photos" aria-hidden="true">
+      <div class="bg-slide s1"></div>
+      <div class="bg-slide s2"></div>
+      <div class="bg-slide s3"></div>
+    </div>
+    <div class="bg-scrim" aria-hidden="true"></div>
 
     <nav class="nav">
       <div class="nav-inner">
@@ -69,9 +75,10 @@ const year = new Date().getFullYear();
           <div>
             <h5>Explore</h5>
             <a href="/#dashboard">Live Dashboard</a>
-            <a href="/#calculator">Earnings Calculator</a>
+            <a href="/single-origin">Single-Origin Explorer</a>
+            <a href="/brewing">Calculators &amp; Brewing</a>
+            <a href="/grades">Grades &amp; Differentials</a>
             <a href="/knowledge">Knowledge Base</a>
-            <a href="/admin">Admin Panel</a>
           </div>
           <div>
             <h5>Data sources</h5>

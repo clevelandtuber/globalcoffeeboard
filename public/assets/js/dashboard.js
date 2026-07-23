@@ -197,27 +197,40 @@
     }
   }
 
+  // Compares India Robusta Cherry (₹/kg) with the London Robusta futures
+  // converted to ₹/kg. Both reflect Admin overrides when set, else Coffee Board.
   function renderVerdict(robInr, localRob) {
     const el = document.getElementById("verdict");
     if (!el) return;
-    let score = 0;
-    const reasons = [];
-    if (localRob != null && robInr) {
-      const diffPct = ((localRob - robInr) / robInr) * 100;
-      if (diffPct > 3) { score++; reasons.push("local Cherry above world parity"); }
-      else if (diffPct < -3) { score--; reasons.push("local Cherry below world parity"); }
+    const diffPct = (localRob != null && robInr) ? ((localRob - robInr) / robInr) * 100 : null;
+
+    let cls, emoji, title, pill, sub;
+    if (diffPct != null && diffPct > 3) {
+      cls = "good"; emoji = "🌱"; title = "Reasonable day to sell"; pill = "SELL";
+      sub = "India Robusta Cherry is trading above the world benchmark, so selling now looks favourable.";
+    } else if (diffPct != null && diffPct < -3) {
+      cls = "bad"; emoji = "⏳"; title = "Consider holding"; pill = "HOLD";
+      sub = "India Robusta Cherry is trailing the world benchmark, so you may get a better price by waiting.";
+    } else {
+      cls = "hold"; emoji = "⚖️"; title = "Neutral, your call"; pill = "NEUTRAL";
+      sub = "Local and world prices are roughly in line. Weigh your cash needs against storage.";
     }
-    let cls, emoji, title, sub;
-    if (score >= 1) { cls = "good"; emoji = "🌱"; title = "Reasonable day to sell"; sub = "Local prices are firm versus the world benchmark."; }
-    else if (score <= -1) { cls = "bad"; emoji = "⏳"; title = "Consider holding"; sub = "Local prices trail the world benchmark — you may get more later."; }
-    else { cls = "hold"; emoji = "⚖️"; title = "Neutral / your call"; sub = "Prices are roughly in line — weigh your cash needs and storage."; }
+
+    const chips = [];
+    if (localRob != null) chips.push(`<span class="v-chip">India Robusta Cherry <b>${F.inr(localRob, 0)}/kg</b></span>`);
+    if (robInr) chips.push(`<span class="v-chip">World parity <b>${F.inr(robInr, 0)}/kg</b></span>`);
+    if (diffPct != null) {
+      const dir = diffPct >= 0 ? "up" : "down";
+      chips.push(`<span class="v-chip ${dir}">${diffPct >= 0 ? "+" : ""}${diffPct.toFixed(1)}% vs world</span>`);
+    }
+
     el.className = "verdict " + cls;
     el.innerHTML = `
-      <div class="emoji">${emoji}</div>
-      <div style="flex:1;min-width:220px">
-        <div class="v-title">${title}</div>
+      <div class="v-badge">${emoji}</div>
+      <div class="v-main">
+        <div class="v-head"><span class="v-title">${title}</span><span class="v-pill">${pill}</span></div>
         <div class="v-sub">${sub}</div>
-        ${reasons.length ? `<div style="margin-top:8px;font-size:.85rem;color:var(--text-dim)">Signals: ${reasons.join(" · ")}</div>` : ""}
+        <div class="v-chips">${chips.join("")}</div>
       </div>`;
   }
 
