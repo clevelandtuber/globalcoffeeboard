@@ -36,59 +36,198 @@ const methods = [
           <p>Weighing beats scooping. Enter your numbers and brew with confidence.</p>
         </div>
 
-        <div class="tool-grid reveal">
-          <!-- Brew ratio -->
-          <div class="glass tool">
-            <h3>Brew-ratio calculator</h3>
-            <div class="tool-sub">Pick a method and how much water you'll use — get the coffee dose.</div>
-            <div class="field">
-              <label>Brew method</label>
-              <select id="bw-method">
-                <option value="16" selected>Pour-over / drip (1:16)</option>
-                <option value="17">Chemex (1:17)</option>
-                <option value="15">French press (1:15)</option>
-                <option value="15">AeroPress (1:15)</option>
-                <option value="10">Moka pot (1:10)</option>
-                <option value="8">Cold brew concentrate (1:8)</option>
-              </select>
+        <div class="calc-tabs reveal" role="tablist">
+          <button type="button" class="calc-tab active" data-tab="percup">Coffee Per Cup</button>
+          <button type="button" class="calc-tab" data-tab="ratio">Coffee to Water Ratio</button>
+          <button type="button" class="calc-tab" data-tab="espresso">Espresso Dial-in</button>
+        </div>
+
+        <!-- 1) Coffee Per Cup -->
+        <div class="calc-panel active" data-panel="percup">
+        <div class="calc-title">
+          <span class="calc-badge">1</span>
+          <div>
+            <h3>Coffee Per Cup Calculator</h3>
+            <p>How much ground coffee for the number of cups you want to brew.</p>
+          </div>
+        </div>
+        <div class="rc glass">
+          <div class="rc-grid">
+            <div class="rc-inputs">
+              <div class="rc-block">
+                <div class="rc-eyebrow">How many cups?</div>
+                <input id="pc-cups" class="rc-amount" type="number" inputmode="numeric" min="1" value="2" />
+              </div>
+              <div class="rc-block">
+                <div class="rc-eyebrow">Cup size</div>
+                <div class="chip-row" id="pc-size">
+                  <button type="button" class="chip" data-ml="177">Small · 6 oz</button>
+                  <button type="button" class="chip active" data-ml="237">Cup · 8 oz</button>
+                  <button type="button" class="chip" data-ml="355">Mug · 12 oz</button>
+                </div>
+              </div>
+              <div class="rc-block">
+                <div class="rc-eyebrow">Strength</div>
+                <div class="chip-row" id="pc-strength">
+                  <button type="button" class="chip" data-ratio="18">Mild 1:18</button>
+                  <button type="button" class="chip active" data-ratio="16">Medium 1:16</button>
+                  <button type="button" class="chip" data-ratio="14">Strong 1:14</button>
+                </div>
+              </div>
             </div>
-            <div class="field">
-              <label>Water (grams ≈ ml)</label>
-              <input id="bw-water" type="number" inputmode="numeric" value="500" />
+            <div class="rc-recipe">
+              <div class="rc-recipe-head">Your recipe</div>
+              <div class="rc-big" id="pc-out">29.6</div>
+              <div class="rc-big-unit">grams of coffee</div>
+              <div class="rc-tiles">
+                <div class="rc-tile"><b id="pc-tbsp">5.9</b><span>tablespoons</span></div>
+                <div class="rc-tile"><b id="pc-scoop">3.0</b><span>scoops</span></div>
+                <div class="rc-tile"><b id="pc-water">474</b><span>ml water</span></div>
+              </div>
+              <div class="rc-strength-label" id="pc-strength-label">Medium</div>
+              <div class="rc-mug">
+                <svg class="rc-mug-svg" viewBox="0 0 108 90" aria-hidden="true">
+                  <clipPath id="pc-mugclip"><rect x="14" y="12" width="56" height="66" rx="8"/></clipPath>
+                  <rect id="pc-mug-fill" x="14" y="46" width="56" height="32" fill="var(--caramel)" clip-path="url(#pc-mugclip)"/>
+                  <rect x="14" y="12" width="56" height="66" rx="8" fill="none" stroke="currentColor" stroke-width="4"/>
+                  <path d="M70 28 h12 a11 11 0 0 1 0 32 h-12" fill="none" stroke="currentColor" stroke-width="4"/>
+                </svg>
+                <span id="pc-note">2 cups · 8 oz each</span>
+              </div>
             </div>
-            <div class="field">
-              <label>Strength</label>
-              <select id="bw-strength">
-                <option value="1">Lighter</option>
-                <option value="0" selected>Balanced</option>
-                <option value="-1">Stronger</option>
-              </select>
+          </div>
+          <div class="rc-summary-head">Recipe summary</div>
+          <div class="rc-summary" id="pc-summary">For 2 cups (8 oz each) at medium strength, use 29.6 g of coffee (about 5.9 tablespoons) and 474 ml of water.</div>
+          <div class="rc-actions">
+            <button type="button" class="btn btn-primary" id="pc-copy">Copy recipe</button>
+            <button type="button" class="btn" id="pc-reset">Reset</button>
+          </div>
+        </div>
+
+        </div>
+
+        <!-- 2) Coffee to Water Ratio -->
+        <div class="calc-panel" data-panel="ratio">
+        <div class="calc-title">
+          <span class="calc-badge">2</span>
+          <div>
+            <h3>Coffee to Water Ratio Calculator</h3>
+            <p>Dial in any ratio and get the exact dose — grams, tablespoons or scoops.</p>
+          </div>
+        </div>
+        <!-- Coffee-to-water ratio calculator -->
+        <div class="rc glass">
+          <div class="rc-grid">
+            <!-- LEFT: inputs -->
+            <div class="rc-inputs">
+              <div class="rc-block">
+                <div class="rc-eyebrow">What do you want to find?</div>
+                <div class="chip-row" id="rc-mode">
+                  <button type="button" class="chip active" data-mode="coffee">How much coffee</button>
+                  <button type="button" class="chip" data-mode="water">How much water</button>
+                </div>
+              </div>
+
+              <div class="rc-block">
+                <div class="rc-eyebrow" id="rc-amount-label">Water amount</div>
+                <input id="rc-amount" class="rc-amount" type="number" inputmode="decimal" min="0" value="500" />
+                <div class="chip-row" id="rc-unit">
+                  <button type="button" class="chip active" data-unit="grams">grams</button>
+                  <button type="button" class="chip" data-unit="ml">ml</button>
+                  <button type="button" class="chip" data-unit="oz">oz</button>
+                  <button type="button" class="chip" data-unit="cups">cups</button>
+                </div>
+              </div>
+
+              <div class="rc-block">
+                <div class="rc-eyebrow rc-ratio-head"><span>Ratio strength</span><span class="rc-ratio-val" id="rc-ratio-val">1:16</span></div>
+                <div class="rc-lead">1 part coffee to <b id="rc-ratio-den">16</b> parts water</div>
+                <input id="rc-ratio" class="rc-range" type="range" min="8" max="20" step="1" value="16" />
+                <div class="rc-scale"><span>1:8 strong</span><span>1:16 balanced</span><span>1:20 light</span></div>
+                <div class="chip-row rc-presets" id="rc-presets">
+                  <button type="button" class="chip" data-ratio="16">Drip 1:16</button>
+                  <button type="button" class="chip" data-ratio="17">Pour Over 1:17</button>
+                  <button type="button" class="chip" data-ratio="15">French Press 1:15</button>
+                  <button type="button" class="chip" data-ratio="8">Cold Brew 1:8</button>
+                </div>
+              </div>
             </div>
-            <div class="tool-out">
-              <div class="big"><span id="bw-coffee">—</span></div>
-              <div class="small" id="bw-tbsp"></div>
-              <div class="small">Ratio <b id="bw-ratio" style="color:var(--latte)">1 : 16</b></div>
+
+            <!-- RIGHT: recipe -->
+            <div class="rc-recipe">
+              <div class="rc-recipe-head">Your recipe</div>
+              <div class="rc-big" id="rc-out">31.3</div>
+              <div class="rc-big-unit" id="rc-out-unit">grams of coffee</div>
+              <div class="rc-tiles">
+                <div class="rc-tile"><b id="rc-tbsp">6.3</b><span>tablespoons</span></div>
+                <div class="rc-tile"><b id="rc-scoop">3.1</b><span>scoops</span></div>
+                <div class="rc-tile"><b id="rc-counter">500</b><span id="rc-counter-label">g water</span></div>
+              </div>
+              <div class="rc-strength">
+                <div class="rc-strength-bar"><span class="rc-strength-dot" id="rc-strength-dot"></span></div>
+                <div class="rc-strength-scale"><span>Bold</span><span>Balanced</span><span>Light</span></div>
+              </div>
+              <div class="rc-strength-label" id="rc-strength-label">Balanced</div>
+              <div class="rc-mug">
+                <svg class="rc-mug-svg" viewBox="0 0 108 90" aria-hidden="true">
+                  <clipPath id="rc-mugclip"><rect x="14" y="12" width="56" height="66" rx="8"/></clipPath>
+                  <rect id="rc-mug-fill" x="14" y="46" width="56" height="32" fill="var(--caramel)" clip-path="url(#rc-mugclip)"/>
+                  <rect x="14" y="12" width="56" height="66" rx="8" fill="none" stroke="currentColor" stroke-width="4"/>
+                  <path d="M70 28 h12 a11 11 0 0 1 0 32 h-12" fill="none" stroke="currentColor" stroke-width="4"/>
+                </svg>
+                <span id="rc-batch">about a large batch</span>
+              </div>
             </div>
           </div>
 
-          <!-- Espresso -->
-          <div class="glass tool">
-            <h3>Espresso dial-in</h3>
-            <div class="tool-sub">Enter your dose and shot yield to see the brew ratio.</div>
-            <div class="field">
-              <label>Dose in (g of dry grounds)</label>
-              <input id="es-dose" type="number" inputmode="decimal" step="0.1" value="18" />
-            </div>
-            <div class="field">
-              <label>Yield out (g of espresso)</label>
-              <input id="es-yield" type="number" inputmode="decimal" step="0.1" value="36" />
-            </div>
-            <div class="tool-out">
-              <div class="big" id="es-ratio">1 : 2.00</div>
-              <div class="small" id="es-verdict"></div>
-            </div>
-            <p style="color:var(--text-dim);font-size:.8rem;margin-top:12px">Tip: aim for a ~25–32 s shot. Too fast = grind finer; too slow = grind coarser.</p>
+          <div class="rc-summary-head">Recipe summary</div>
+          <div class="rc-summary" id="rc-summary">For 500 g of water at a 1:16 ratio, use 31.3 g of coffee, about 6.3 tablespoons or 3.1 scoops.</div>
+          <div class="rc-actions">
+            <button type="button" class="btn btn-primary" id="rc-copy">Copy recipe</button>
+            <button type="button" class="btn" id="rc-reset">Reset</button>
           </div>
+        </div>
+
+        </div>
+
+        <!-- 3) Espresso dial-in -->
+        <div class="calc-panel" data-panel="espresso">
+        <div class="calc-title">
+          <span class="calc-badge">3</span>
+          <div>
+            <h3>Espresso dial-in</h3>
+            <p>Check your dose-to-yield ratio for a balanced shot.</p>
+          </div>
+        </div>
+        <div class="rc rc-espresso glass">
+          <div class="rc-grid">
+            <div class="rc-inputs">
+              <div class="rc-block">
+                <div class="rc-eyebrow">The shot</div>
+                <p class="rc-lead" style="margin:0 0 4px">Enter your dose and shot yield to see the brew ratio.</p>
+              </div>
+              <div class="rc-block">
+                <div class="rc-eyebrow">Dose in — dry grounds (g)</div>
+                <input id="es-dose" class="rc-amount" type="number" inputmode="decimal" step="0.1" min="0" value="18" />
+              </div>
+              <div class="rc-block">
+                <div class="rc-eyebrow">Yield out — liquid espresso (g)</div>
+                <input id="es-yield" class="rc-amount" type="number" inputmode="decimal" step="0.1" min="0" value="36" />
+              </div>
+              <p style="color:var(--text-dim);font-size:.8rem;margin:0">Tip: aim for a ~25–32 s shot. Too fast → grind finer; too slow → grind coarser.</p>
+            </div>
+            <div class="rc-recipe">
+              <div class="rc-recipe-head">Your shot</div>
+              <div class="rc-big" id="es-ratio">1 : 2.00</div>
+              <div class="rc-big-unit">brew ratio</div>
+              <div class="rc-strength">
+                <div class="rc-strength-bar"><span class="rc-strength-dot" id="es-dot"></span></div>
+                <div class="rc-strength-scale"><span>Ristretto</span><span>Espresso</span><span>Lungo</span></div>
+              </div>
+              <div class="rc-strength-label" id="es-verdict">Balanced espresso</div>
+            </div>
+          </div>
+        </div>
         </div>
       </div>
     </section>

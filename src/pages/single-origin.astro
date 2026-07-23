@@ -1,5 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { countryMaps } from '../data/countryMaps.js';
+
+// flavor pills from the notes list (first three, title-cased)
+const titleCase = (s) => s.trim().replace(/\b\w/g, (c) => c.toUpperCase());
 
 // One data source powers both the flip cards and the comparison table.
 const origins = [
@@ -49,31 +53,39 @@ const origins = [
           <p>Front: the origin at a glance. Back: tasting notes, altitude, processing, body &amp; acidity.</p>
         </div>
         <div class="flip-grid reveal">
-          {origins.map((o) => (
-            <div class="flip-card">
-              <div class="flip-inner">
-                <div class="flip-face flip-front">
-                  <div class="o-flag">{o.flag}</div>
-                  <div>
-                    <div class="o-name">{o.name}</div>
-                    <div class="o-desc">{o.desc}</div>
-                    <div class="o-region">{o.region}</div>
+          {origins.map((o) => {
+            const tags = o.notes.split(/[,;]/).slice(0, 3).map((t) => titleCase(t));
+            return (
+              <div class="flip-card">
+                <div class="flip-inner">
+                  <div class="flip-face flip-front">
+                    <svg class="o-map" viewBox="0 0 1024 1024" aria-hidden="true" set:html={countryMaps[o.name] || ''}></svg>
+                    <div class="o-top">
+                      <div class="o-name">{o.name}</div>
+                      <div class="o-region">{o.region}</div>
+                    </div>
+                    <div class="o-bottom">
+                      <div class="o-desc">{o.desc}</div>
+                      <div class="o-hint">Tap to see the flavor ↻</div>
+                    </div>
                   </div>
-                  <div class="o-hint">Tap to flip ↻</div>
-                </div>
-                <div class="flip-face flip-back">
-                  <div class="o-notes">{o.flag} {o.name}<br />{o.notes}</div>
-                  <dl>
-                    <dt>Altitude</dt><dd>{o.alt}</dd>
-                    <dt>Process</dt><dd>{o.proc}</dd>
-                    <dt>Body</dt><dd>{o.body}</dd>
-                    <dt>Acidity</dt><dd>{o.acid}</dd>
-                    <dt>Best brew</dt><dd>{o.brew}</dd>
-                  </dl>
+                  <div class="flip-face flip-back">
+                    <div class="o-back-name">{o.name}</div>
+                    <div class="o-tags">
+                      {tags.map((t) => <span class="o-tag">{t}</span>)}
+                    </div>
+                    <dl class="o-specs">
+                      <dt>Altitude</dt><dd>{o.alt}</dd>
+                      <dt>Process</dt><dd>{o.proc}</dd>
+                      <dt>Body</dt><dd>{o.body}</dd>
+                      <dt>Acidity</dt><dd>{o.acid}</dd>
+                    </dl>
+                    <div class="o-hint o-hint-back">Tap to flip back ↻</div>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

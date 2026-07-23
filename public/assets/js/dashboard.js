@@ -196,17 +196,14 @@
     const el = document.getElementById("raw-grid");
     if (el) {
       el.innerHTML = state.cbi.map((r) => {
-        // The report quotes ₹/50 kg; show it per-kg instead.
-        const lowKg = r.low != null ? r.low / 50 : null;
-        const highKg = r.high != null ? r.high / 50 : null;
-        const midKg = r.inr50kg != null ? r.inr50kg / 50 : null;
-        const range = (lowKg != null && highKg != null && lowKg !== highKg)
-          ? `₹${F.num(lowKg, 0)} – ${F.num(highKg, 0)}`
-          : F.inr(midKg, 0);
+        // The report quotes ₹/50 kg — show that range, with a per-kg hint.
+        const range = (r.low != null && r.high != null && r.low !== r.high)
+          ? `₹${F.num(r.low, 0)} – ${F.num(r.high, 0)}`
+          : F.inr(r.inr50kg, 0);
         return `<div class="glass raw-card">
             <div class="raw-grade">${r.grade}</div>
             <div class="raw-price">${range}</div>
-            <div class="raw-unit">₹ / kg</div>
+            <div class="raw-unit">₹ / 50 kg · ≈ ${F.inr((r.inr50kg || 0) / 50, 0)}/kg</div>
           </div>`;
       }).join("");
     }
