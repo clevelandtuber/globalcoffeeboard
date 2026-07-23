@@ -14,14 +14,19 @@ const {
   noindex = false,
 } = Astro.props;
 
-const nav = [
+// On desktop all tabs show inline; on mobile the secondary ones collapse into "More".
+// Dashboard + Origins always stay visible; Dashboard is the way back to the home screen.
+const navMain = [
   { href: '/',              label: 'Dashboard', key: 'dashboard' },
-  { href: '/single-origin', label: 'Origins',   key: 'origins' },
-  { href: '/brewing',       label: 'Brewing',   key: 'brewing' },
-  { href: '/grades',        label: 'Grades',    key: 'grades' },
-  { href: '/knowledge',     label: 'Knowledge', key: 'knowledge' },
-  { href: '/admin',         label: 'Admin',     key: 'admin' },
+  { href: '/single-origin', label: 'Origins',   key: 'origins'   },
 ];
+const navSecondary = [
+  { href: '/grades',    label: 'Grades',    key: 'grades'    },
+  { href: '/brewing',   label: 'Brewing',   key: 'brewing'   },
+  { href: '/knowledge', label: 'Knowledge', key: 'knowledge' },
+  { href: '/admin',     label: 'Admin',     key: 'admin'     },
+];
+const moreActive = navSecondary.some((n) => n.key === active);
 const year = new Date().getFullYear();
 ---
 <!DOCTYPE html>
@@ -56,9 +61,20 @@ const year = new Date().getFullYear();
         <a class="brand" href="/"><span class="bean-mark"></span><span class="brand-text">Global <b>Coffee</b> Board</span></a>
         <button class="nav-toggle" aria-label="Menu">☰</button>
         <div class="nav-links">
-          {nav.map((n) => (
+          {navMain.map((n) => (
             <a href={n.href} class={active === n.key ? 'active' : ''}>{n.label}</a>
           ))}
+          {navSecondary.map((n) => (
+            <a href={n.href} class={`nav-secondary${active === n.key ? ' active' : ''}`}>{n.label}</a>
+          ))}
+          <div class={moreActive ? 'nav-more has-active' : 'nav-more'}>
+            <button class="nav-more-btn" aria-haspopup="true" aria-expanded="false">More <span class="caret" aria-hidden="true">▾</span></button>
+            <div class="nav-more-menu">
+              {navSecondary.map((n) => (
+                <a href={n.href} class={active === n.key ? 'active' : ''}>{n.label}</a>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </nav>

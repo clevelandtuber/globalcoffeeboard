@@ -13,6 +13,31 @@
     );
   }
 
+  // "More" dropdown
+  const more = document.querySelector(".nav-more");
+  const moreBtn = more && more.querySelector(".nav-more-btn");
+  if (more && moreBtn) {
+    moreBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const open = more.classList.toggle("open");
+      moreBtn.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    // Close when clicking anywhere outside the dropdown
+    document.addEventListener("click", (e) => {
+      if (!more.contains(e.target)) {
+        more.classList.remove("open");
+        moreBtn.setAttribute("aria-expanded", "false");
+      }
+    });
+    // Close on Escape
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        more.classList.remove("open");
+        moreBtn.setAttribute("aria-expanded", "false");
+      }
+    });
+  }
+
   // Scroll reveal
   const io = new IntersectionObserver(
     (entries) => entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }),
