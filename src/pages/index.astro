@@ -14,7 +14,7 @@ import LiveMarket from '../components/LiveMarket.astro';
       <p class="lead">Live London Robusta &amp; New York Arabica benchmarks, USD/INR, and the Coffee Board of India daily report — converted to ₹/kg with a plain-language "sell or hold" verdict.</p>
       <div class="hero-cta">
         <a href="#dashboard" class="btn btn-primary">View live prices</a>
-        <a href="/knowledge" class="btn btn-ghost">Explore knowledge →</a>
+        <a href="#calculator" class="btn btn-ghost">Farmer Harvest Price →</a>
       </div>
       <div class="scroll-hint">scroll to the dashboard ↓</div>
     </div>
@@ -80,18 +80,9 @@ import LiveMarket from '../components/LiveMarket.astro';
                 </div>
               </div>
               <div class="field">
-                <label>Quantity</label>
+                <label>Quantity (Outturn)</label>
                 <input id="outturn" type="number" step="1" min="0" value="0" placeholder="Outturn — yield in kg (e.g. 26)" style="font-size:1.6rem;padding:16px 18px;font-weight:700" />
-                <div style="font-size:.78rem;color:var(--text-dim);margin:7px 2px 12px">Outturn = clean-coffee yield in kg. Enter it here, <b>or</b> pick a fixed quantity below:</div>
-                <div class="chip-row">
-                  <div class="chip" data-qty="1">1 kg</div>
-                  <div class="chip" data-qty="50">50 kg (bag)</div>
-                  <div class="chip" data-qty="60">60 kg (bag)</div>
-                  <div class="chip" data-qty="100">100 kg</div>
-                  <div class="chip" data-qty="1000">1 tonne</div>
-                  <div class="chip" data-qty="custom">Custom</div>
-                </div>
-                <input id="qty-custom" type="number" inputmode="numeric" placeholder="Enter kg" style="display:none;margin-top:10px" />
+                <div style="font-size:.95rem;color:var(--text-dim);margin:9px 2px 4px">Outturn = clean-coffee yield in kg</div>
               </div>
               <div class="field">
                 <label>Differential (US$/tonne) <span style="color:var(--text-dim);font-weight:400;text-transform:none;letter-spacing:0">— default 250, editable</span></label>

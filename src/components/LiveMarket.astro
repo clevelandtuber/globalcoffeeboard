@@ -32,11 +32,17 @@
     <!-- Charts -->
     <div class="tv-charts">
       <div class="glass" style="padding:12px">
-        <div class="eyebrow" style="padding:2px 4px 10px">Robusta · London futures · US$/tonne</div>
+        <div class="tv-chart-head">
+          <span class="eyebrow">Robusta · London futures · US$/tonne</span>
+          <a class="tv-ice-link" href="https://in.tradingview.com/symbols/ICEEUR-RC1!/" target="_blank" rel="noopener">ICE futures RC1! ↗</a>
+        </div>
         <div id="tv-chart-robusta" class="tradingview-widget-container tv-chart"></div>
       </div>
       <div class="glass" style="padding:12px">
-        <div class="eyebrow" style="padding:2px 4px 10px">Arabica · New York futures · US$/lb</div>
+        <div class="tv-chart-head">
+          <span class="eyebrow">Arabica · New York futures · US$/lb</span>
+          <a class="tv-ice-link" href="https://www.tradingview.com/symbols/ICEUS-KC1!/" target="_blank" rel="noopener">ICE futures KC1! ↗</a>
+        </div>
         <div id="tv-chart-arabica" class="tradingview-widget-container tv-chart"></div>
       </div>
     </div>
@@ -48,6 +54,18 @@
   .tv-ticker { padding: 4px 8px; margin-bottom: 16px; overflow: hidden; }
   .tv-ticker #tv-ticker,
   .tv-ticker .tradingview-widget-container__widget { width: 100%; }
+
+  /* Chart title row: label on the left, ICE click-through on the right */
+  .tv-chart-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 12px; padding: 2px 4px 10px; flex-wrap: wrap;
+  }
+  .tv-ice-link {
+    font-size: .72rem; letter-spacing: .02em; white-space: nowrap;
+    color: var(--gold-2); text-decoration: none; opacity: .85;
+    transition: opacity .2s var(--ease-out, ease), color .2s var(--ease-out, ease);
+  }
+  .tv-ice-link:hover { opacity: 1; text-decoration: underline; }
 
   .tv-charts { display: grid; grid-template-columns: 1fr; gap: 24px; }
   .tv-chart { height: 560px; }

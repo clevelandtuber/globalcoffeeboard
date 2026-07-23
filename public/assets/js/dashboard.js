@@ -258,8 +258,8 @@
     const total = perKg * kg;
     out.querySelector("[data-earn]").textContent = F.inr(total, 0);
     out.querySelector("[data-earn-sub]").textContent = kg > 0
-      ? `((${F.usd(usd)} + $${calc.differential.toLocaleString("en-IN")}) / 1000) × ₹${F.num(state.usdinr, 2)} × ${kg.toLocaleString("en-IN")} kg (${calc.mode === "qty" ? "quantity" : "outturn"}) · ${calc.bean === "arabica" ? "Arabica" : "Robusta"}`
-      : "Enter an outturn (kg) above, or pick a quantity";
+      ? `((${F.usd(usd)} + $${calc.differential.toLocaleString("en-IN")}) / 1000) × ₹${F.num(state.usdinr, 2)} × ${kg.toLocaleString("en-IN")} kg (outturn) · ${calc.bean === "arabica" ? "Arabica" : "Robusta"}`
+      : "Enter an outturn (kg) above";
   }
 
   function wireCalc() {
