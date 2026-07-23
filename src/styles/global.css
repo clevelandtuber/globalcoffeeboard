@@ -336,6 +336,12 @@ h1, h2, h3, .head { font-family: var(--font-head); font-weight: 700; letter-spac
   border-radius: 999px; color: #160f06; background: var(--accent);
 }
 .verdict .v-sub { color: var(--text-muted); font-size: 0.96rem; margin-top: 5px; max-width: 640px; }
+.verdict .v-analysis {
+  color: var(--text-dim); font-size: 0.9rem; line-height: 1.6; margin-top: 12px;
+  max-width: 760px; padding: 12px 14px; border-radius: var(--radius-sm);
+  background: rgba(0,0,0,0.20); border: 1px solid var(--border);
+}
+.verdict .v-analysis b { color: var(--gold-2); font-weight: 700; }
 .verdict .v-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 13px; }
 .verdict .v-chip {
   font-size: 0.8rem; padding: 5px 11px; border-radius: 999px;

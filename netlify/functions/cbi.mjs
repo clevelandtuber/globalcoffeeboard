@@ -83,25 +83,48 @@ function parseReport(text) {
   }
 
   // ---- official ICE futures — SEPTEMBER contract ----
-  // Rows look like: "July - 2026 321.30 682.14 July - 2026 3867 ... Sept-2026 312.60 663.67 Sept-2026 3797 ..."
-  // We want the September row: Arabica ¢/lb (312.60) and Robusta $/tonne (3797).
+  // The full September row carries the Board's own ₹/Kg conversion:
+  //   "Sept-2026 <araCents> <araInrKg>  Sept-2026 <robUsd/t> <robCents> <robInrKg>"
+  //   e.g. "Sept-2026 322.10 683.91 Sept-2026 3818 173.18 367.71"
   let futures = null;
-  const sep = text.match(/Sept[-\s]*20\d{2}\s+([0-9]{2,3}\.[0-9]{2})[\s\S]*?Sept[-\s]*20\d{2}\s+([34][0-9]{3})\b/i);
-  if (sep) {
-    futures = { arabicaCentsLb: +sep[1], robustaUsdTonne: +sep[2], month: "September" };
+  const full = text.match(/Sept[-\s]*20\d{2}\s+([0-9]{2,3}\.[0-9]{2})\s+([0-9]{2,4}\.[0-9]{2})\s+Sept[-\s]*20\d{2}\s+([0-9]{4})\s+([0-9]{2,3}\.[0-9]{2})\s+([0-9]{2,4}\.[0-9]{2})/i);
+  if (full) {
+    futures = {
+      arabicaCentsLb: +full[1], arabicaInrKg: +full[2],
+      robustaUsdTonne: +full[3], robustaCentsLb: +full[4], robustaInrKg: +full[5],
+      month: "September",
+    };
   } else {
-    // Fallback: first futures row after the "US $/Tonne" header.
-    const h = text.search(/US ?\$ ?\/ ?Tonne/i);
-    if (h >= 0) {
-      const seg = text.slice(h, h + 220);
-      const ara = (seg.match(/([0-9]{2,3}\.[0-9]{2})/) || [])[1];
-      const rob = (seg.match(/\b([34][0-9]{3})\b/) || [])[1];
-      futures = { arabicaCentsLb: ara ? +ara : null, robustaUsdTonne: rob ? +rob : null, month: "front" };
+    // Fallback A: September row without the ₹/Kg columns.
+    const sep = text.match(/Sept[-\s]*20\d{2}\s+([0-9]{2,3}\.[0-9]{2})[\s\S]*?Sept[-\s]*20\d{2}\s+([34][0-9]{3})\b/i);
+    if (sep) {
+      futures = { arabicaCentsLb: +sep[1], arabicaInrKg: null, robustaUsdTonne: +sep[2], robustaInrKg: null, month: "September" };
+    } else {
+      // Fallback B: first futures row after the "US $/Tonne" header.
+      const h = text.search(/US ?\$ ?\/ ?Tonne/i);
+      if (h >= 0) {
+        const seg = text.slice(h, h + 220);
+        const ara = (seg.match(/([0-9]{2,3}\.[0-9]{2})/) || [])[1];
+        const rob = (seg.match(/\b([34][0-9]{3})\b/) || [])[1];
+        futures = { arabicaCentsLb: ara ? +ara : null, arabicaInrKg: null, robustaUsdTonne: rob ? +rob : null, robustaInrKg: null, month: "front" };
+      }
     }
   }
 
+  // ---- the Board's own "Market Analysis" paragraph (expert daily commentary) ----
+  let analysis = null;
+  const am = text.match(/Market Analysis\s+([\s\S]*?)(?:\s*Differentials\s*:|\s*ICTA\b|\s*Disclaimer\b)/i);
+  if (am) analysis = (am[1].replace(/\s+/g, " ").trim() || null);
+
+  // ---- the day's futures direction, for a simple sell/hold lean ----
+  // e.g. "September ICE robusta coffee is closed down -66 (-1.70%) at US$ 3799/tonne."
+  const signed = (m) => (m ? (m[1].toLowerCase() === "down" ? -Math.abs(+m[2]) : Math.abs(+m[2])) : null);
+  const araT = text.match(/arabica coffee[^.]*?closed\s+(up|down)[^(]*\(([-+]?[0-9.]+)\s*%\)/i);
+  const robT = text.match(/robusta coffee[^.]*?closed\s+(up|down)[^(]*\(([-+]?[0-9.]+)\s*%\)/i);
+  const trend = { arabicaPct: signed(araT), robustaPct: signed(robT) };
+
   const d = text.match(/Daily Coffee Market Report,\s*(\w+day,?\s*\w+\s+\d{1,2},?\s*\d{4})/);
-  return { date: d ? d[1].trim() : null, grades, futures };
+  return { date: d ? d[1].trim() : null, grades, futures, analysis, trend };
 }
 
 let cache = null;

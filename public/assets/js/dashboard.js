@@ -3,7 +3,7 @@
 
    Card values come from the SERVER (same on every device):
      • London Robusta / NY Arabica  = Coffee Board SEPTEMBER futures
-     • India Robusta / Arabica Cherry = Coffee Board raw grade prices
+     • India Robusta / Arabica Cherry = Coffee Board SEPTEMBER futures in ₹/kg
      • USD/INR = live FX
    Priority for each:  admin entry (localStorage)  ->  Coffee Board  ->  seed.
    (Yahoo was dropped — it was stale and made phone/laptop disagree.)
@@ -18,6 +18,10 @@
     cbi: [],                 // [{ grade, inr50kg, low, high }]
     robCherry50: null,       // ₹/50kg
     araCherry50: null,       // ₹/50kg
+    robustaInrKgCbi: null,   // official CBI Sept-2026 Robusta ₹/kg
+    araInrKgCbi: null,       // official CBI Sept-2026 Arabica ₹/kg
+    analysis: null,          // Coffee Board's market-analysis paragraph
+    trend: null,             // { arabicaPct, robustaPct } — the day's futures move
     cbiDate: null,
     source: {},              // per-field: "live" | "manual" | "seed"
     updated: null,
@@ -77,6 +81,10 @@
     state.cbi = seed.cbi.map((g) => ({ ...g }));
     state.robCherry50 = cherryFrom(state.cbi, /robusta/i);
     state.araCherry50 = cherryFrom(state.cbi, /arabica/i);
+    state.robustaInrKgCbi = null;
+    state.araInrKgCbi = null;
+    state.analysis = null;
+    state.trend = null;
     state.cbiDate = null;
     state.source = { robusta: "seed", arabica: "seed", fx: "seed", robCherry: "seed", araCherry: "seed", cbi: "seed" };
     state.updated = seed.updated;
@@ -100,7 +108,11 @@
         if (cbi.futures) {
           if (cbi.futures.robustaUsdTonne) { state.robustaUsdTonne = cbi.futures.robustaUsdTonne; state.source.robusta = "live"; }
           if (cbi.futures.arabicaCentsLb) { state.arabicaCentsLb = cbi.futures.arabicaCentsLb; state.source.arabica = "live"; }
+          if (cbi.futures.robustaInrKg != null) state.robustaInrKgCbi = cbi.futures.robustaInrKg;
+          if (cbi.futures.arabicaInrKg != null) state.araInrKgCbi = cbi.futures.arabicaInrKg;
         }
+        if (cbi.analysis) state.analysis = cbi.analysis;
+        if (cbi.trend) state.trend = cbi.trend;
       }
     } catch { /* gov site unavailable — keep seed */ }
 
@@ -134,8 +146,15 @@
     const usdinr = state.usdinr;
     const robInr = conv.robustaToInrKg(state.robustaUsdTonne, usdinr);
     const araInr = conv.arabicaToInrKg(state.arabicaCentsLb, usdinr);
-    const robCherryKg = state.robCherry50 != null ? state.robCherry50 / 50 : null;
-    const araCherryKg = state.araCherry50 != null ? state.araCherry50 / 50 : null;
+    // India ₹/kg cards = the Sept-2026 futures expressed in rupees. Prefer the
+    // Board's own official ₹/Kg from the report; use the live-FX conversion when
+    // admin has overridden the futures price, or as a fallback.
+    const robustaInrKg = state.source.robusta === "manual"
+      ? conv.robustaToInrKg(state.robustaUsdTonne, usdinr)
+      : (state.robustaInrKgCbi != null ? state.robustaInrKgCbi : conv.robustaToInrKg(state.robustaUsdTonne, usdinr));
+    const araInrKg = state.source.arabica === "manual"
+      ? conv.arabicaToInrKg(state.arabicaCentsLb, usdinr)
+      : (state.araInrKgCbi != null ? state.araInrKgCbi : conv.arabicaToInrKg(state.arabicaCentsLb, usdinr));
     const unit = 'style="font-size:1rem;color:var(--text-dim)"';
 
     setHTML("card-robusta", `
@@ -156,16 +175,16 @@
       <div class="secondary">1 US Dollar · live</div>
       <div class="meta"><span></span> ${srcBadge("fx")}</div>`);
 
-    const cherryCard = (title, perKg, per50, key) => `
+    const localCard = (title, inrKg, key) => `
       <div class="label"><span class="dot" style="background:var(--latte)"></span> ${title}</div>
-      <div class="primary">${perKg != null ? F.inr(perKg, 2) : "—"}<span ${unit}> /kg</span></div>
-      <div class="secondary" style="font-size:.85rem;color:var(--text-dim)">${per50 != null ? F.inr(per50, 0) + " / 50 kg" : "—"}</div>
+      <div class="primary">${inrKg != null ? F.inr(inrKg, 2) : "—"}<span ${unit}> /kg</span></div>
+      <div class="secondary">Sept-2026 futures · ₹/kg</div>
       <div class="meta"><span></span> ${srcBadge(key)}</div>`;
-    setHTML("card-local-robusta", cherryCard("India Robusta Cherry", robCherryKg, state.robCherry50, "robCherry"));
-    setHTML("card-local-arabica", cherryCard("India Arabica Cherry", araCherryKg, state.araCherry50, "araCherry"));
+    setHTML("card-local-robusta", localCard("India Robusta Cherry", robustaInrKg, "robusta"));
+    setHTML("card-local-arabica", localCard("India Arabica Cherry", araInrKg, "arabica"));
 
     renderRaw();
-    renderVerdict(robInr, robCherryKg);
+    renderVerdict(robustaInrKg, araInrKg);
     refreshCalc();
 
     const upd = document.getElementById("updated-at");
@@ -177,13 +196,17 @@
     const el = document.getElementById("raw-grid");
     if (el) {
       el.innerHTML = state.cbi.map((r) => {
-        const range = (r.low != null && r.high != null && r.low !== r.high)
-          ? `₹${F.num(r.low, 0)} – ${F.num(r.high, 0)}`
-          : F.inr(r.inr50kg, 0);
+        // The report quotes ₹/50 kg; show it per-kg instead.
+        const lowKg = r.low != null ? r.low / 50 : null;
+        const highKg = r.high != null ? r.high / 50 : null;
+        const midKg = r.inr50kg != null ? r.inr50kg / 50 : null;
+        const range = (lowKg != null && highKg != null && lowKg !== highKg)
+          ? `₹${F.num(lowKg, 0)} – ${F.num(highKg, 0)}`
+          : F.inr(midKg, 0);
         return `<div class="glass raw-card">
             <div class="raw-grade">${r.grade}</div>
             <div class="raw-price">${range}</div>
-            <div class="raw-unit">₹ / 50 kg · ≈ ${F.inr((r.inr50kg || 0) / 50, 0)}/kg</div>
+            <div class="raw-unit">₹ / kg</div>
           </div>`;
       }).join("");
     }
@@ -197,32 +220,41 @@
     }
   }
 
-  // Compares India Robusta Cherry (₹/kg) with the London Robusta futures
-  // converted to ₹/kg. Both reflect Admin overrides when set, else Coffee Board.
-  function renderVerdict(robInr, localRob) {
+  // Sell/hold guidance driven by the Coffee Board's own daily report:
+  //   • lean = the day's Robusta futures move (falls back to Arabica)
+  //   • the Board's "Market Analysis" paragraph is shown as expert commentary
+  //   • the official Sept-2026 ₹/kg figures are displayed
+  // Everything here comes from the same CBI report, so it refreshes together
+  // with the price cards.
+  function renderVerdict(robustaInrKg, araInrKg) {
     const el = document.getElementById("verdict");
     if (!el) return;
-    const diffPct = (localRob != null && robInr) ? ((localRob - robInr) / robInr) * 100 : null;
+    const t = state.trend || {};
+    const pct = t.robustaPct != null ? t.robustaPct : (t.arabicaPct != null ? t.arabicaPct : null);
 
     let cls, emoji, title, pill, sub;
-    if (diffPct != null && diffPct > 3) {
-      cls = "good"; emoji = "🌱"; title = "Reasonable day to sell"; pill = "SELL";
-      sub = "India Robusta Cherry is trading above the world benchmark, so selling now looks favourable.";
-    } else if (diffPct != null && diffPct < -3) {
-      cls = "bad"; emoji = "⏳"; title = "Consider holding"; pill = "HOLD";
-      sub = "India Robusta Cherry is trailing the world benchmark, so you may get a better price by waiting.";
+    if (pct != null && pct <= -1) {
+      cls = "bad"; emoji = "⏳"; title = "Prices easing — consider holding"; pill = "HOLD";
+      sub = "Coffee futures fell today, so you may fetch a better price by waiting for the market to steady.";
+    } else if (pct != null && pct >= 1) {
+      cls = "good"; emoji = "🌱"; title = "Prices firming — reasonable to sell"; pill = "SELL";
+      sub = "Coffee futures rose today; selling into the strength can help lock in the gain.";
     } else {
-      cls = "hold"; emoji = "⚖️"; title = "Neutral, your call"; pill = "NEUTRAL";
-      sub = "Local and world prices are roughly in line. Weigh your cash needs against storage.";
+      cls = "hold"; emoji = "⚖️"; title = "Steady market — your call"; pill = "NEUTRAL";
+      sub = "Prices are broadly flat today. Weigh your cash needs against the cost of storing.";
     }
 
     const chips = [];
-    if (localRob != null) chips.push(`<span class="v-chip">India Robusta Cherry <b>${F.inr(localRob, 0)}/kg</b></span>`);
-    if (robInr) chips.push(`<span class="v-chip">World parity <b>${F.inr(robInr, 0)}/kg</b></span>`);
-    if (diffPct != null) {
-      const dir = diffPct >= 0 ? "up" : "down";
-      chips.push(`<span class="v-chip ${dir}">${diffPct >= 0 ? "+" : ""}${diffPct.toFixed(1)}% vs world</span>`);
+    if (robustaInrKg != null) chips.push(`<span class="v-chip">Robusta Sept-2026 <b>${F.inr(robustaInrKg, 0)}/kg</b></span>`);
+    if (araInrKg != null) chips.push(`<span class="v-chip">Arabica Sept-2026 <b>${F.inr(araInrKg, 0)}/kg</b></span>`);
+    if (pct != null) {
+      const dir = pct >= 0 ? "up" : "down";
+      chips.push(`<span class="v-chip ${dir}">Robusta ${pct >= 0 ? "+" : ""}${pct.toFixed(2)}% today</span>`);
     }
+
+    const analysis = state.analysis
+      ? `<p class="v-analysis"><b>Coffee Board market analysis:</b> ${state.analysis}</p>`
+      : "";
 
     el.className = "verdict " + cls;
     el.innerHTML = `
@@ -230,6 +262,7 @@
       <div class="v-main">
         <div class="v-head"><span class="v-title">${title}</span><span class="v-pill">${pill}</span></div>
         <div class="v-sub">${sub}</div>
+        ${analysis}
         <div class="v-chips">${chips.join("")}</div>
       </div>`;
   }
