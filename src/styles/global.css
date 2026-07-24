@@ -515,8 +515,11 @@ input:focus, select:focus { outline: none; border-color: var(--gold); background
 
 /* ---------- Ratio calculator (two-panel) ---------- */
 .rc { padding: 0; overflow: hidden; margin-bottom: 24px; }
-.rc-grid { display: grid; grid-template-columns: 1.05fr 1fr; }
-.rc-inputs { padding: 30px 32px; }
+/* Mobile-first: inputs on top, "Your recipe" stacked below. Two columns only
+   kick in at >=821px (see min-width block). Never depends on max-width queries,
+   which iOS Safari can defeat when a wide element zooms the layout out. */
+.rc-grid { display: grid; grid-template-columns: 1fr; }
+.rc-inputs { padding: 24px 18px; }
 .rc-block { margin-bottom: 26px; }
 .rc-block:last-child { margin-bottom: 0; }
 .rc-eyebrow { font-size: 0.76rem; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--gold-2); margin-bottom: 11px; }
@@ -539,7 +542,7 @@ input:focus, select:focus { outline: none; border-color: var(--gold); background
 .rc-range::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: var(--caramel); border: 3px solid #fff6ec; box-shadow: 0 2px 8px rgba(0,0,0,0.4); cursor: pointer; }
 
 /* right recipe panel */
-.rc-recipe { padding: 30px 32px; text-align: center; background: linear-gradient(165deg, rgba(224,164,88,0.10), rgba(181,118,47,0.05)); border-left: 1px solid var(--border); }
+.rc-recipe { padding: 24px 18px; text-align: center; background: linear-gradient(165deg, rgba(224,164,88,0.10), rgba(181,118,47,0.05)); border-top: 1px solid var(--border); }
 .rc-recipe-head { font-size: 0.76rem; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text-muted); }
 .rc-big { font-family: var(--font-head); font-size: 3.6rem; font-weight: 800; line-height: 1.05; color: var(--gold-2); margin-top: 6px; }
 .rc-big-unit { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px; }
@@ -557,19 +560,20 @@ input:focus, select:focus { outline: none; border-color: var(--gold); background
 .rc-mug span { color: var(--text-muted); font-size: 0.9rem; }
 
 /* summary + actions */
-.rc-summary-head { font-size: 0.76rem; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--gold-2); padding: 22px 32px 0; }
-.rc-summary { margin: 10px 32px 0; padding: 16px 18px; border: 1px dashed var(--border-strong); border-radius: 14px; color: var(--latte); font-size: 0.98rem; }
-.rc-actions { display: flex; gap: 12px; padding: 18px 32px 30px; flex-wrap: wrap; }
+.rc-summary-head { font-size: 0.76rem; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--gold-2); padding: 20px 18px 0; }
+.rc-summary { margin: 10px 18px 0; padding: 16px 18px; border: 1px dashed var(--border-strong); border-radius: 14px; color: var(--latte); font-size: 0.98rem; }
+.rc-actions { display: flex; gap: 12px; padding: 16px 18px 24px; flex-wrap: wrap; }
 .rc-actions .btn { flex: 1; justify-content: center; min-width: 130px; }
 .rc-espresso .rc-big { font-size: 2.8rem; }
 
-@media (max-width: 820px) {
-  .rc-grid { grid-template-columns: 1fr; }
-  .rc-recipe { border-left: none; border-top: 1px solid var(--border); }
-  .rc-inputs, .rc-recipe { padding: 24px 18px; }
-  .rc-summary-head { padding: 20px 18px 0; }
-  .rc-summary { margin: 10px 18px 0; }
-  .rc-actions { padding: 16px 18px 24px; }
+/* Desktop: two-panel side-by-side layout from 821px up */
+@media (min-width: 821px) {
+  .rc-grid { grid-template-columns: 1.05fr 1fr; }
+  .rc-recipe { border-top: none; border-left: 1px solid var(--border); }
+  .rc-inputs, .rc-recipe { padding: 30px 32px; }
+  .rc-summary-head { padding: 22px 32px 0; }
+  .rc-summary { margin: 10px 32px 0; }
+  .rc-actions { padding: 18px 32px 30px; }
 }
 /* Very narrow phones: shrink big type + tiles so nothing is clipped */
 @media (max-width: 430px) {
