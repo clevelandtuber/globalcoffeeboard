@@ -316,11 +316,19 @@ h1, h2, h3, .head { font-family: var(--font-head); font-weight: 700; letter-spac
 
 /* ---------- Price grid ---------- */
 /* Clean, balanced columns instead of auto-fit's awkward 4+1 wrap for 5 cards */
-.price-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
-@media (min-width: 560px)  { .price-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (min-width: 900px)  { .price-grid { grid-template-columns: repeat(3, 1fr); } }
+.price-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+@media (min-width: 900px)  { .price-grid { grid-template-columns: repeat(3, 1fr); gap: 20px; } }
 @media (min-width: 1180px) { .price-grid { grid-template-columns: repeat(5, 1fr); } }
 .price-card { padding: 24px; position: relative; overflow: hidden; transition: transform .25s, box-shadow .25s; }
+/* Compact price cards on phones (2 per row, less scrolling) */
+@media (max-width: 640px) {
+  .price-card { padding: 15px 14px; }
+  .price-card .label { font-size: 0.66rem; letter-spacing: 0.4px; gap: 7px; }
+  .price-card .primary { font-size: 1.5rem; margin: 8px 0 2px; }
+  .price-card .primary span { font-size: 0.72rem !important; }
+  .price-card .secondary { font-size: 0.82rem; }
+  .price-card .meta { font-size: 0.66rem; margin-top: 8px; }
+}
 /* Tabular figures so data-heavy numbers align and don't jitter */
 .price-card, .calc-result, .raw-price, .tool-out, .verdict .v-chip { font-variant-numeric: tabular-nums; }
 .price-card:hover { transform: translateY(-4px); box-shadow: var(--shadow), var(--shadow-gold); }
@@ -638,9 +646,12 @@ input:focus, select:focus { outline: none; border-color: var(--gold); background
 
 /* ---------- Footer ---------- */
 .footer { border-top: 1px solid var(--border); margin-top: 40px; padding: 40px 0 30px; background: rgba(14,10,5,0.6); }
-.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 30px; }
+/* Mobile-first: single stacked column; three columns from 768px up */
+.footer-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
+@media (min-width: 768px) { .footer-grid { grid-template-columns: 2fr 1fr 1fr; gap: 30px; } }
 .footer h5 { font-family: var(--font-head); color: var(--latte); margin-bottom: 12px; font-size: 1.05rem; }
-.footer a { display: block; color: var(--text-muted); font-size: 0.9rem; padding: 4px 0; }
+.footer a { display: block; color: var(--text-muted); font-size: 0.9rem; padding: 4px 0; overflow-wrap: anywhere; }
+.footer p { overflow-wrap: anywhere; }
 .footer a:hover { color: var(--gold-2); }
 .footer .fine { text-align: center; color: var(--text-dim); font-size: 0.8rem; margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border); }
 
@@ -671,8 +682,14 @@ input:focus, select:focus { outline: none; border-color: var(--gold); background
 .raw-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin: 40px 0 16px; }
 .raw-title { font-family: var(--font-head); font-size: 1.5rem; margin-top: 4px; }
 .raw-meta { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-.raw-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+.raw-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
 .raw-card { padding: 20px 22px; position: relative; overflow: hidden; transition: transform .2s, box-shadow .2s; }
+@media (max-width: 640px) {
+  .raw-card { padding: 14px 14px; }
+  .raw-grade { font-size: 0.82rem; }
+  .raw-price { font-size: 1.25rem; }
+  .raw-unit { font-size: 0.72rem; }
+}
 .raw-card:hover { transform: translateY(-3px); box-shadow: var(--shadow), var(--shadow-gold); }
 .raw-grade { color: var(--text-muted); font-size: 0.9rem; font-weight: 600; }
 .raw-price { font-family: var(--font-head); font-size: 1.55rem; font-weight: 800; color: var(--gold-2); margin: 6px 0 2px; }
@@ -692,7 +709,6 @@ input:focus, select:focus { outline: none; border-color: var(--gold); background
 @media (max-width: 1023.98px) {
   .calc { grid-template-columns: 1fr; }
   .cbi-layout { grid-template-columns: 1fr !important; }
-  .footer-grid { grid-template-columns: 1fr; gap: 20px; }
 }
 
 /* Mobile touch/spacing tweaks (nav layout itself is handled mobile-first above) */
