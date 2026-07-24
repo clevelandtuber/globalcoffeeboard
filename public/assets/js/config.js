@@ -102,6 +102,8 @@ GCB.SEED = {
   robustaUsdTonne: 3900,   // London Robusta ~ $3,900/t (mid-Jul 2026)
   arabicaCentsLb: 305,     // NY Arabica ~ 305 ¢/lb
   usdinr: 96.4,            // USD/INR ~ 96.4
+  // approximate USD→currency rates so non-India tabs render before live FX loads
+  rates: { INR: 96.4, BRL: 5.42, VND: 26150, COP: 4050, IDR: 16200, ETB: 57.3 },
   robustaPrevTonne: 3850,
   arabicaPrevCentsLb: 308,
   // Coffee Board of India — Daily Coffee Market Report (INR / 50 kg bag typical grades)
@@ -112,4 +114,63 @@ GCB.SEED = {
     { grade: "Robusta Cherry (AB)",    inr50kg: 9400  },
   ],
   updated: null,
+};
+
+/* ---- Country dashboards ----
+   India is fully live (Coffee Board of India + live FX). The other origins share
+   the live global ICE futures + live FX for their currency, and show indicative
+   local farm-gate estimates (world futures ± a typical origin differential in
+   US$/tonne) clearly labelled as such. */
+GCB.COUNTRY_ORDER = ['india', 'brazil', 'vietnam', 'colombia', 'indonesia', 'ethiopia'];
+GCB.COUNTRIES = {
+  india: {
+    key: 'india', name: 'India', flag: '🇮🇳', cur: 'INR', sym: '₹', loc: 'en-IN', live: true, diff: 350,
+    localRobTitle: 'India Robusta Cherry', localAraTitle: 'India Arabica Cherry',
+    rawSource: 'Coffee Board of India', rawTitle: 'Indian Raw Coffee Price', rawUnit: '₹ / 50 kg',
+  },
+  brazil: {
+    key: 'brazil', name: 'Brazil', flag: '🇧🇷', cur: 'BRL', sym: 'R$', loc: 'en-US', live: false, diff: 120,
+    localRobTitle: 'Brazil · Conilon', localAraTitle: 'Brazil · Arabica',
+    rawSource: 'Brazil · indicative estimate', rawTitle: 'Brazilian Coffee Price', rawUnit: 'R$ / kg · indicative',
+    grades: [
+      { grade: 'Arabica (Tipo 6)', type: 'arabica', diff: -250 },
+      { grade: 'Conilon (Robusta)', type: 'robusta', diff: -150 },
+    ],
+  },
+  vietnam: {
+    key: 'vietnam', name: 'Vietnam', flag: '🇻🇳', cur: 'VND', sym: '₫', loc: 'en-US', live: false, diff: 120,
+    localRobTitle: 'Vietnam · Robusta', localAraTitle: 'Vietnam · Arabica',
+    rawSource: 'Vietnam · indicative estimate', rawTitle: 'Vietnamese Coffee Price', rawUnit: '₫ / kg · indicative',
+    grades: [
+      { grade: 'Robusta Grade 2 (Đắk Lắk)', type: 'robusta', diff: -120 },
+      { grade: 'Robusta Grade 1', type: 'robusta', diff: 40 },
+    ],
+  },
+  colombia: {
+    key: 'colombia', name: 'Colombia', flag: '🇨🇴', cur: 'COP', sym: 'COL$', loc: 'en-US', live: false, diff: 800,
+    localRobTitle: 'Colombia · Robusta', localAraTitle: 'Colombia · Arabica',
+    rawSource: 'Colombia · indicative estimate', rawTitle: 'Colombian Coffee Price', rawUnit: 'COP / kg · indicative',
+    grades: [
+      { grade: 'Excelso (Arabica)', type: 'arabica', diff: 180 },
+      { grade: 'Supremo (Arabica)', type: 'arabica', diff: 320 },
+    ],
+  },
+  indonesia: {
+    key: 'indonesia', name: 'Indonesia', flag: '🇮🇩', cur: 'IDR', sym: 'Rp', loc: 'en-US', live: false, diff: 250,
+    localRobTitle: 'Indonesia · Robusta', localAraTitle: 'Sumatra · Arabica',
+    rawSource: 'Indonesia · indicative estimate', rawTitle: 'Indonesian Coffee Price', rawUnit: 'Rp / kg · indicative',
+    grades: [
+      { grade: 'Robusta EK-1', type: 'robusta', diff: -80 },
+      { grade: 'Sumatra Arabica (Mandheling)', type: 'arabica', diff: 120 },
+    ],
+  },
+  ethiopia: {
+    key: 'ethiopia', name: 'Ethiopia', flag: '🇪🇹', cur: 'ETB', sym: 'Br', loc: 'en-US', live: false, diff: 700,
+    localRobTitle: 'Ethiopia · Robusta', localAraTitle: 'Ethiopia · Arabica',
+    rawSource: 'Ethiopia · indicative estimate', rawTitle: 'Ethiopian Coffee Price', rawUnit: 'Br / kg · indicative',
+    grades: [
+      { grade: 'Washed Grade 2 (Arabica)', type: 'arabica', diff: 220 },
+      { grade: 'Natural Grade 4 (Arabica)', type: 'arabica', diff: 60 },
+    ],
+  },
 };

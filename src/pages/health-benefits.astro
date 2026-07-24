@@ -1,0 +1,123 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+// Each benefit is backed by a real, peer-reviewed study (DOI-linked).
+// Most non-performance findings are observational associations, and several
+// effects come from the whole coffee matrix (chlorogenic acids, polyphenols),
+// not caffeine alone — the page states this honestly.
+const benefits = [
+  {
+    name: 'Sharper focus & alertness',
+    dose: '40–300 mg / day',
+    compound: 'Caffeine · adenosine A1/A2A blocker',
+    body: `Caffeine blocks adenosine — the molecule that builds up through the day and makes you feel drowsy. A large review of controlled trials found reliable gains in vigilance, reaction time and sustained attention, especially when you are tired or sleep-deprived, from doses as small as a single cup.`,
+    cite: 'McLellan, Caldwell & Lieberman (2016) · Neuroscience & Biobehavioral Reviews',
+    url: 'https://doi.org/10.1016/j.neubiorev.2016.09.001',
+    accent: '#e0a458',
+  },
+  {
+    name: 'Stronger physical & endurance performance',
+    dose: '3–6 mg per kg body weight, ~60 min before exercise',
+    compound: 'Caffeine · lowers perceived effort',
+    body: `Caffeine is one of the most robustly evidenced legal performance aids. The International Society of Sports Nutrition's official position stand concludes it reliably improves endurance, muscular endurance, sprinting and power — largely by reducing how hard exercise feels and delaying fatigue.`,
+    cite: 'Guest et al. (2021) · Journal of the International Society of Sports Nutrition',
+    url: 'https://doi.org/10.1186/s12970-020-00383-4',
+    accent: '#e8663f',
+  },
+  {
+    name: 'A brighter mood & lower depression risk',
+    dose: 'Dose-dependent · ~2–3 cups / day',
+    compound: 'Caffeine · modulates dopamine signalling',
+    body: `A meta-analysis of observational studies found coffee and caffeine consumption associated with a significantly lower risk of depression, with risk edging down as intake rose. Caffeine's effect on dopamine pathways is a leading explanation for the mood lift.`,
+    cite: 'Wang et al. (2016) · Australian & New Zealand Journal of Psychiatry',
+    url: 'https://doi.org/10.1177/0004867415603131',
+    accent: '#4f9fe0',
+  },
+  {
+    name: 'Lower risk of type 2 diabetes',
+    dose: 'Dose-dependent · ~3–4 cups / day',
+    compound: 'Chlorogenic acid (plus caffeine)',
+    body: `Pooling 28 studies and over a million people, each extra cup of coffee per day was linked to roughly 6–9% lower risk of type 2 diabetes, in a clear dose–response. Both caffeinated and decaffeinated coffee helped — pointing to chlorogenic acids as much as caffeine itself.`,
+    cite: 'Ding et al. (2014) · Diabetes Care',
+    url: 'https://doi.org/10.2337/dc13-1203',
+    accent: '#2fb0a0',
+  },
+  {
+    name: 'A healthier liver',
+    dose: 'Each extra 2 cups / day',
+    compound: 'Caffeine + coffee diterpenes & chlorogenic acids',
+    body: `Every additional two cups of coffee a day was associated with about a 35% lower risk of hepatocellular carcinoma — the main form of liver cancer — across roughly 2.3 million people. The protection held for both caffeinated and decaffeinated coffee.`,
+    cite: 'Kennedy et al. (2017) · BMJ Open',
+    url: 'https://doi.org/10.1136/bmjopen-2016-013739',
+    accent: '#3fae6a',
+  },
+  {
+    name: 'Protection against Parkinson’s disease',
+    dose: '~3 cups / day (≈ 300 mg caffeine)',
+    compound: 'Caffeine · adenosine A2A antagonist',
+    body: `By blocking A2A receptors, caffeine appears to help shield the brain's dopamine-producing neurons. A dose–response meta-analysis of about 900,000 people found the risk of Parkinson's falling as caffeine intake rose, with protection plateauing around three cups a day.`,
+    cite: 'Qi & Li (2014) · Geriatrics & Gerontology International',
+    url: 'https://doi.org/10.1111/ggi.12123',
+    accent: '#8b6fd6',
+  },
+  {
+    name: 'Guarding memory in later life',
+    dose: '3–5 cups / day at midlife',
+    compound: 'Caffeine + antioxidants',
+    body: `In the long-running Finnish CAIDE study, people who drank 3–5 cups of coffee a day in midlife had roughly 65% lower odds of dementia and Alzheimer's disease decades later — an effect the authors attribute partly to caffeine's neuroprotective action.`,
+    cite: 'Eskelinen & Kivipelto (2010) · Journal of Alzheimer’s Disease',
+    url: 'https://doi.org/10.3233/JAD-2010-1404',
+    accent: '#a259c4',
+  },
+  {
+    name: 'A longer, healthier life overall',
+    dose: '3–4 cups / day (largest benefit)',
+    compound: 'Caffeine + polyphenol antioxidants',
+    body: `An umbrella review in the BMJ combined more than 200 meta-analyses and found moderate coffee drinking — around 3–4 cups a day — associated with the largest reduction in all-cause and cardiovascular mortality, alongside lower risk of many diseases.`,
+    cite: 'Poole et al. (2017) · BMJ',
+    url: 'https://doi.org/10.1136/bmj.j5024',
+    accent: '#e0668f',
+  },
+];
+---
+<Layout
+  title="Caffeine Health Benefits — The Science, by Study | Global Coffee Board"
+  description="Evidence-based health benefits of caffeine and coffee — focus, exercise performance, mood, type 2 diabetes, liver health, Parkinson's, memory and longevity — each with the daily dose, the active compound, and a link to the peer-reviewed research."
+  active="health"
+>
+  <header class="hero" style="padding:70px 0 24px">
+    <div class="wrap">
+      <div class="eyebrow">Evidence-based · caffeine &amp; health</div>
+      <h1 style="font-size:clamp(2.2rem,5vw,3.6rem)">What the science says about <span class="grad">caffeine</span></h1>
+      <p class="lead">A researcher's-eye tour of what peer-reviewed studies actually show about caffeine and coffee. Each benefit below lists a sensible daily dose, the compound believed to drive it, and a link to the original paper so you can read it yourself.</p>
+    </div>
+  </header>
+
+  <main>
+    <section class="section" style="padding-top:8px">
+      <div class="wrap">
+        <div class="hb-grid reveal">
+          {benefits.map((b) => (
+            <article class="hb-card" style={`--accent:${b.accent}`}>
+              <h3 class="hb-name">{b.name}</h3>
+              <div class="hb-meta">
+                <span class="hb-pill hb-dose">☕ {b.dose}</span>
+                <span class="hb-pill hb-compound">🧬 {b.compound}</span>
+              </div>
+              <p class="hb-body">{b.body}</p>
+              <a class="hb-link" href={b.url} target="_blank" rel="noopener">Read the study — {b.cite} ↗</a>
+            </article>
+          ))}
+        </div>
+
+        <!-- Safety + honest caveats -->
+        <div class="hb-safety reveal">
+          <h3>How much is safe — and how to read this page</h3>
+          <p>The European Food Safety Authority concludes that up to <b>400 mg of caffeine a day</b> (about 4–5 cups of coffee) is safe for healthy adults, with <b>single doses up to 200 mg</b>. Pregnant and breastfeeding women should stay under <b>200 mg a day</b>, and for children and teens the guide is roughly <b>3 mg per kg of body weight</b>.</p>
+          <p style="margin-bottom:0">A scientist's honesty note: most of the disease findings above come from <b>observational studies</b>, which show associations rather than proof of cause — and several benefits reflect the <b>whole coffee matrix</b> (chlorogenic acids, polyphenols, diterpenes), not caffeine alone. This page is for education, not medical advice; if you have a health condition or are pregnant, talk to your doctor.</p>
+          <a class="hb-link" href="https://doi.org/10.2903/j.efsa.2015.4102" target="_blank" rel="noopener" style="--accent:var(--gold-2)">Safety reference — EFSA (2015), Scientific Opinion on the Safety of Caffeine ↗</a>
+        </div>
+      </div>
+    </section>
+  </main>
+</Layout>

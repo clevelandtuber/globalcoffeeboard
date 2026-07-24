@@ -406,6 +406,33 @@ input:focus, select:focus { outline: none; border-color: var(--gold); background
 .article li { margin-bottom: 7px; }
 .callout { border-left: 3px solid var(--gold); background: rgba(224,164,88,0.07); padding: 16px 20px; border-radius: 0 12px 12px 0; margin: 20px 0; color: var(--latte); }
 
+/* ---------- Health benefits ---------- */
+.hb-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 22px; }
+.hb-card {
+  position: relative; display: flex; flex-direction: column;
+  padding: 28px 26px 24px; border-radius: 20px; overflow: hidden;
+  background: linear-gradient(165deg, color-mix(in srgb, var(--accent) 13%, var(--surface-solid)), var(--bg-1));
+  border: 1px solid color-mix(in srgb, var(--accent) 32%, var(--border));
+  transition: transform 0.22s var(--ease-out, ease), box-shadow 0.22s var(--ease-out, ease);
+}
+.hb-card::before {
+  content: ""; position: absolute; inset: 0 0 auto 0; height: 5px;
+  background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 35%, transparent));
+}
+.hb-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px color-mix(in srgb, var(--accent) 22%, transparent); }
+.hb-name { font-family: var(--font-head); font-size: 1.5rem; font-weight: 800; line-height: 1.14; margin-top: 6px; color: #fff; text-wrap: balance; }
+.hb-meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0; }
+.hb-pill { font-size: 0.78rem; font-weight: 700; padding: 6px 12px; border-radius: 999px; display: inline-flex; align-items: center; gap: 6px; }
+.hb-dose { background: color-mix(in srgb, var(--accent) 20%, transparent); color: color-mix(in srgb, var(--accent) 55%, #fff); border: 1px solid color-mix(in srgb, var(--accent) 42%, transparent); }
+.hb-compound { background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid var(--border); }
+.hb-body { color: var(--text-muted); font-size: 0.95rem; line-height: 1.62; margin: 0 0 18px; }
+.hb-link { margin-top: auto; font-size: 0.84rem; font-weight: 700; color: var(--accent); text-decoration: none; display: inline-flex; align-items: baseline; gap: 4px; }
+.hb-link:hover { text-decoration: underline; }
+.hb-safety { margin-top: 26px; padding: 28px; border-radius: 20px; background: linear-gradient(160deg, rgba(224,164,88,0.10), var(--bg-1)); border: 1px solid var(--border-strong); }
+.hb-safety h3 { font-family: var(--font-head); font-size: 1.4rem; font-weight: 800; margin-bottom: 12px; color: var(--latte); }
+.hb-safety p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.65; margin: 0 0 12px; max-width: 900px; }
+.hb-safety b { color: var(--text); }
+
 /* ---------- Coffee calculators ---------- */
 .tool-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 22px; }
 .tool { padding: 26px; }
@@ -441,6 +468,24 @@ input:focus, select:focus { outline: none; border-color: var(--gold); background
 }
 .calc-title h3 { font-family: var(--font-head); font-size: 1.5rem; font-weight: 800; line-height: 1.1; }
 .calc-title p { color: var(--text-muted); font-size: 0.9rem; margin: 3px 0 0; }
+
+/* ---------- Country tabs (dashboard) ---------- */
+.country-tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 22px auto 30px; max-width: 920px; }
+.country-tab {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 18px; border-radius: 999px; border: 1px solid var(--border-strong);
+  background: rgba(0,0,0,0.22); color: var(--text-muted); font-family: inherit;
+  font-size: 0.92rem; font-weight: 600; cursor: pointer; white-space: nowrap;
+  transition: color 0.18s, border-color 0.18s, transform 0.18s var(--ease-out, ease), box-shadow 0.18s;
+}
+.country-tab .ct-flag { font-size: 1.15rem; line-height: 1; }
+.country-tab:hover { color: var(--text); border-color: var(--gold); transform: translateY(-1px); }
+.country-tab.active { background: linear-gradient(120deg, var(--gold-2), var(--gold)); color: #241405; border-color: transparent; box-shadow: var(--shadow-gold); }
+@media (max-width: 640px) {
+  .country-tabs { flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; padding: 2px 4px 8px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .country-tabs::-webkit-scrollbar { display: none; }
+  .country-tab { flex: none; }
+}
 
 /* ---------- Ratio calculator (two-panel) ---------- */
 .rc { padding: 0; overflow: hidden; margin-bottom: 24px; }
@@ -492,13 +537,24 @@ input:focus, select:focus { outline: none; border-color: var(--gold); background
 .rc-actions .btn { flex: 1; justify-content: center; min-width: 130px; }
 .rc-espresso .rc-big { font-size: 2.8rem; }
 
-@media (max-width: 760px) {
+@media (max-width: 820px) {
   .rc-grid { grid-template-columns: 1fr; }
   .rc-recipe { border-left: none; border-top: 1px solid var(--border); }
-  .rc-inputs, .rc-recipe { padding: 24px 20px; }
-  .rc-summary-head { padding: 20px 20px 0; }
-  .rc-summary { margin: 10px 20px 0; }
-  .rc-actions { padding: 16px 20px 24px; }
+  .rc-inputs, .rc-recipe { padding: 24px 18px; }
+  .rc-summary-head { padding: 20px 18px 0; }
+  .rc-summary { margin: 10px 18px 0; }
+  .rc-actions { padding: 16px 18px 24px; }
+}
+/* Very narrow phones: shrink big type + tiles so nothing is clipped */
+@media (max-width: 430px) {
+  .rc-big { font-size: 2.7rem; }
+  .rc-espresso .rc-big { font-size: 2.3rem; }
+  .rc-amount { font-size: 1.5rem; padding: 12px 14px; }
+  .rc-tiles { gap: 8px; }
+  .rc-tile { padding: 12px 4px; }
+  .rc-tile b { font-size: 1.25rem; }
+  .rc-tile span { font-size: 0.68rem; }
+  .rc-strength-scale, .rc-scale { font-size: 0.68rem; }
 }
 
 /* ---------- Origin explorer: flip cards ---------- */
@@ -618,7 +674,12 @@ input:focus, select:focus { outline: none; border-color: var(--gold); background
   }
   .nav-links.open { transform: none; }
   .nav-links a { padding: 13px 14px; min-height: 44px; display: flex; align-items: center; }
-  .nav-toggle { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; }
+  .nav-toggle { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; flex: 0 0 auto; }
+  /* keep the brand from pushing the hamburger past the screen edge on small phones */
+  .nav-inner { padding: 12px 16px; gap: 10px; }
+  .brand { font-size: 1.05rem; min-width: 0; flex: 0 1 auto; gap: 9px; }
+  .brand .bean-mark { width: 30px; height: 30px; }
+  .brand-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   /* Mobile: the secondary tabs move into "More" */
   .nav-secondary { display: none; }
   .nav-more { display: block; }

@@ -4,14 +4,14 @@ import LiveMarket from '../components/LiveMarket.astro';
 ---
 <Layout
   title="Global Coffee Board — Live Coffee Prices & Knowledge"
-  description="Live global coffee prices (London Robusta, NY Arabica), USD/INR, and the Coffee Board of India daily market report — plus an earnings calculator and a coffee knowledge encyclopedia."
+  description="Live global coffee prices (London Robusta, NY Arabica), live local-currency conversion for major growing countries, and daily market reports — plus an earnings calculator and a coffee knowledge encyclopedia."
   active="dashboard"
 >
   <header class="hero">
     <div class="wrap">
       <div class="eyebrow">Global coffee intelligence · from bean to benchmark</div>
       <h1>The world's coffee prices,<br /><span class="grad">clear enough for a farmer.</span></h1>
-      <p class="lead">Live London Robusta &amp; New York Arabica benchmarks, USD/INR, and the Coffee Board of India daily report — converted to ₹/kg with a plain-language "sell or hold" verdict.</p>
+      <p class="lead">Live London Robusta &amp; New York Arabica benchmarks, live local-currency conversion, and official daily market reports — turned into your local price per kg with a plain-language "sell or hold" verdict, for growers from India and Brazil to Vietnam, Colombia, Indonesia and Ethiopia.</p>
       <div class="hero-cta">
         <a href="#dashboard" class="btn btn-primary">View live prices</a>
         <a href="#calculator" class="btn btn-cherry">Farmer Harvest Price →</a>
@@ -29,9 +29,18 @@ import LiveMarket from '../components/LiveMarket.astro';
           <div class="eyebrow">Live Price Dashboard</div>
           <h2>Today's coffee market</h2>
           <div style="display:flex;gap:14px;justify-content:center;align-items:center;margin-top:8px;flex-wrap:wrap">
-            <span class="live-dot"><i></i> USD/INR updated <b id="updated-at" style="color:var(--text)">—</b></span>
-            <button class="btn" id="refresh-btn" style="padding:8px 16px">↻ Refresh USD/INR</button>
+            <span class="live-dot"><i></i> USD/<b id="fx-label" style="color:var(--text)">INR</b> updated <b id="updated-at" style="color:var(--text)">—</b></span>
+            <button class="btn" id="refresh-btn" style="padding:8px 16px">↻ Refresh rate</button>
           </div>
+        </div>
+
+        <div class="country-tabs reveal" id="country-tabs" role="tablist">
+          <button type="button" class="country-tab active" data-country="india"><span class="ct-flag">🇮🇳</span> India</button>
+          <button type="button" class="country-tab" data-country="brazil"><span class="ct-flag">🇧🇷</span> Brazil</button>
+          <button type="button" class="country-tab" data-country="vietnam"><span class="ct-flag">🇻🇳</span> Vietnam</button>
+          <button type="button" class="country-tab" data-country="colombia"><span class="ct-flag">🇨🇴</span> Colombia</button>
+          <button type="button" class="country-tab" data-country="indonesia"><span class="ct-flag">🇮🇩</span> Indonesia</button>
+          <button type="button" class="country-tab" data-country="ethiopia"><span class="ct-flag">🇪🇹</span> Ethiopia</button>
         </div>
 
         <div class="price-grid reveal">
@@ -44,12 +53,12 @@ import LiveMarket from '../components/LiveMarket.astro';
 
         <div class="raw-head reveal">
           <div>
-            <span class="eyebrow">Coffee Board of India</span>
-            <h3 class="raw-title">Indian Raw Coffee Price</h3>
+            <span class="eyebrow" id="raw-source">Coffee Board of India</span>
+            <h3 class="raw-title" id="raw-title">Indian Raw Coffee Price</h3>
           </div>
           <div class="raw-meta">
             <span id="cbi-badge" class="src-badge"></span>
-            <span style="color:var(--text-dim);font-size:.85rem">As on <b id="raw-date" style="color:var(--text-muted)">—</b> · ₹ / 50 kg</span>
+            <span style="color:var(--text-dim);font-size:.85rem">As on <b id="raw-date" style="color:var(--text-muted)">—</b> · <span id="raw-unit-label">₹ / 50 kg</span></span>
           </div>
         </div>
         <div class="raw-grid" id="raw-grid"></div>
@@ -85,10 +94,10 @@ import LiveMarket from '../components/LiveMarket.astro';
                 <div style="font-size:.95rem;color:var(--text-dim);margin:9px 2px 4px">Outturn = clean-coffee yield in kg</div>
               </div>
               <div class="field">
-                <label>Differential (US$/tonne) <span style="color:var(--text-dim);font-weight:400;text-transform:none;letter-spacing:0">— default 250, editable</span></label>
-                <input id="calc-diff" type="number" step="1" value="250" />
+                <label>Differential (US$/tonne) <span style="color:var(--text-dim);font-weight:400;text-transform:none;letter-spacing:0">— default <span id="calc-diff-default">350</span> for the selected country, editable</span></label>
+                <input id="calc-diff" type="number" step="1" value="350" />
               </div>
-              <p style="color:var(--text-dim);font-size:.85rem">Value = ((<b>futures</b> price + differential) ÷ 1000) × USD/INR × kg — where <b>kg = your outturn</b> (yield) unless you pick a fixed quantity. Futures price &amp; USD/INR come from the cards; the differential (US$/tonne) defaults to 250 and is editable.</p>
+              <p style="color:var(--text-dim);font-size:.85rem">Value = ((<b>futures</b> price + differential) ÷ 1000) × the live exchange rate × kg — where <b>kg = your outturn</b> (yield). Futures price &amp; the exchange rate follow the country tab above; the differential (US$/tonne) starts at a typical average for whichever country tab you pick above (e.g. India ~350, Colombia ~800, Vietnam ~120) and is fully editable.</p>
             </div>
             <div class="glass calc-result" id="calc-out">
               <div class="eyebrow">Estimated value</div>

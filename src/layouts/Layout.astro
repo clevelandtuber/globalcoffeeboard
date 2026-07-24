@@ -21,10 +21,11 @@ const navMain = [
   { href: '/single-origin', label: 'Origins',   key: 'origins'   },
 ];
 const navSecondary = [
-  { href: '/grades',    label: 'Grades',    key: 'grades'    },
-  { href: '/brewing',   label: 'Brewing',   key: 'brewing'   },
-  { href: '/knowledge', label: 'Knowledge', key: 'knowledge' },
-  { href: '/admin',     label: 'Admin',     key: 'admin'     },
+  { href: '/grades',          label: 'Grades',   key: 'grades'    },
+  { href: '/brewing',         label: 'Brewing',  key: 'brewing'   },
+  { href: '/health-benefits', label: 'Health',   key: 'health'    },
+  { href: '/knowledge',       label: 'Knowledge', key: 'knowledge' },
+  { href: '/admin',           label: 'Admin',    key: 'admin'     },
 ];
 const moreActive = navSecondary.some((n) => n.key === active);
 const year = new Date().getFullYear();
@@ -86,7 +87,7 @@ const year = new Date().getFullYear();
         <div class="footer-grid">
           <div>
             <div class="brand" style="margin-bottom:10px"><span class="bean-mark"></span><span class="brand-text">Global <b>Coffee</b> Board</span></div>
-            <p style="color:var(--text-muted);font-size:.92rem;max-width:340px">Global coffee knowledge and a daily price dashboard for the whole coffee community — with a special focus on Indian growers.</p>
+            <p style="color:var(--text-muted);font-size:.92rem;max-width:340px">Global coffee knowledge and a daily price dashboard for coffee farmers and lovers everywhere — from India and Brazil to Vietnam, Colombia, Indonesia and Ethiopia.</p>
           </div>
           <div>
             <h5>Explore</h5>
@@ -94,6 +95,7 @@ const year = new Date().getFullYear();
             <a href="/single-origin">Single-Origin Explorer</a>
             <a href="/brewing">Calculators &amp; Brewing</a>
             <a href="/grades">Grades &amp; Differentials</a>
+            <a href="/health-benefits">Caffeine Health Benefits</a>
             <a href="/knowledge">Knowledge Base</a>
           </div>
           <div>
